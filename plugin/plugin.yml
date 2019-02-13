@@ -1,0 +1,10 @@
+name: pride
+main: me.insanj.pride.Pride
+version: 0.1.0
+description: keep track of your playmates in minecraft
+commands:
+  pride:
+    description: Add a player to your pride.
+    usage: |
+             /pride add <username>
+             /pride remove <username>
