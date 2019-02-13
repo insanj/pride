@@ -1,6 +1,5 @@
 title: pride
-author: @insanj
-theme: modernist
-description: 🎷 keep track of your playmates in minecraft
+theme: jekyll-theme-modernist
+description: 🦁 keep track of your playmates in minecraft
 show_downloads: true
 repository_url: https://github.com/insanj/pride
