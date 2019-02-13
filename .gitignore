@@ -1,6 +1,9 @@
 server/plugins/Pride
 build/
 logs/
+world/
+world_nether/
+world_the_end/
 
 # Compiled class file
 *.class
