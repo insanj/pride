@@ -13,13 +13,13 @@
 config-version: 11
 settings:
   save-user-cache-on-stop-only: false
+  user-cache-size: 1000
+  moved-wrongly-threshold: 0.0625
+  moved-too-quickly-multiplier: 10.0
   bungeecord: false
   late-bind: false
   sample-count: 12
   player-shuffle: 0
-  user-cache-size: 1000
-  moved-wrongly-threshold: 0.0625
-  moved-too-quickly-multiplier: 10.0
   timeout-time: 60
   restart-on-crash: true
   restart-script: ./start.sh
@@ -42,6 +42,10 @@ messages:
 stats:
   disable-saving: false
   forced-stats: {}
+advancements:
+  disable-saving: false
+  disabled:
+  - minecraft:story/disabled
 commands:
   log: true
   tab-complete: 0
@@ -54,10 +58,6 @@ commands:
   - summon
   - testforblock
   - tellraw
-advancements:
-  disable-saving: false
-  disabled:
-  - minecraft:story/disabled
 world-settings:
   default:
     verbose: true
@@ -96,11 +96,6 @@ world-settings:
       sprint-multiplier: 0.1
       other-multiplier: 0.0
     max-tnt-per-tick: 100
-    max-tick-time:
-      tile: 50
-      entity: 50
-    squid-spawn-range:
-      min: 45.0
     merge-radius:
       exp: 3.0
       item: 2.5
@@ -119,6 +114,11 @@ world-settings:
       netherwart-modifier: 100
       vine-modifier: 100
       cocoa-modifier: 100
+    max-tick-time:
+      tile: 50
+      entity: 50
+    squid-spawn-range:
+      min: 45.0
     enable-zombie-pigmen-portal-spawns: true
     item-despawn-rate: 6000
     arrow-despawn-rate: 1200
