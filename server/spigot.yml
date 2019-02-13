@@ -12,7 +12,6 @@
 
 config-version: 11
 settings:
-  debug: false
   save-user-cache-on-stop-only: false
   bungeecord: false
   late-bind: false
@@ -32,6 +31,7 @@ settings:
       max: 2048.0
     attackDamage:
       max: 2048.0
+  debug: false
 messages:
   whitelist: You are not whitelisted on this server!
   unknown-command: Unknown command. Type "/help" for help.
@@ -99,8 +99,6 @@ world-settings:
     max-tick-time:
       tile: 50
       entity: 50
-    squid-spawn-range:
-      min: 45.0
     merge-radius:
       exp: 3.0
       item: 2.5
@@ -119,6 +117,8 @@ world-settings:
       netherwart-modifier: 100
       vine-modifier: 100
       cocoa-modifier: 100
+    squid-spawn-range:
+      min: 45.0
     enable-zombie-pigmen-portal-spawns: true
     item-despawn-rate: 6000
     arrow-despawn-rate: 1200
