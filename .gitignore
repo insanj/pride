@@ -1,5 +1,6 @@
 server/plugins/Pride
 build/
+logs/
 
 # Compiled class file
 *.class

@@ -39,6 +39,10 @@ public class Pride extends JavaPlugin {
 					sender.sendMessage(ChatColor.RED + "Unknown command");
 				}
 			}
+
+			return true;
 		}
+
+		return false;
 	}
 }
