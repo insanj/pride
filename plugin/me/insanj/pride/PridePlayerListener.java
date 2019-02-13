@@ -1,5 +1,10 @@
 package me.insanj.pride;
 
+import java.util.HashMap;
+
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -9,9 +14,11 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PridePlayerListener implements Listener {
     private final Pride plugin;
+    public HashMap playerAreaHistory;
 
     public PridePlayerListener(Pride instance) {
         plugin = instance;
+        playerAreaHistory = new HashMap();
     }
 
     @EventHandler
@@ -25,22 +32,48 @@ public class PridePlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
-        Location from = event.getFrom();
+        //Location from = event.getFrom();
+        //plugin.getLogger().info(String.format("From %.2f,%.2f,%.2f to %.2f,%.2f,%.2f", from.getX(), from.getY(), from.getZ(), to.getX(), to.getY(), to.getZ()));
+
         Location to = event.getTo();
-        plugin.getLogger().info(String.format("From %.2f,%.2f,%.2f to %.2f,%.2f,%.2f", from.getX(), from.getY(), from.getZ(), to.getX(), to.getY(), to.getZ()));
+        detectPride(event.getPlayer().getName(), to, event.getPlayer().getWorld());
     }
 
-    public void detectPride() {
+    public void detectPride(String playerName, Location playerLocation, World world) {
         // purpose: use a given location to determine if a player has entered/exited an area
-        Location playerLocation; // current location
-        Location[] playerAreaHistory; // last time this player was detected within an area
-        Location[] prideAreas; // detection areas
-        Float threshold = 200; // how close you have to be to an area to activate it
+        // 1 last time this player was detected within an area
+        String lastPlayerActivatedArea = (String)playerAreaHistory.getOrDefault(playerName, "");
 
-        // implementation: go through areas and see if playerLocation is within 200 pixels of a prideArea
+        // 2 detection areas
+        String filename = "pride.txt";
+        HashMap prideAreas = PrideConfigurator.readPrideAreas(world, filename);
+        if (prideAreas == null) {
+            //plugin.getLogger("Unable to get prideAreas from pride.txt file");
+            prideAreas = new HashMap();
+            PrideConfigurator.writePrideAreas(filename, prideAreas);
+            plugin.getLogger().info("Write new pride.txt file because we couldn't find one already");
+        } 
 
-        // result: send a message to the server if a player has entered an area
+        double threshold = 50; // how close you have to be to an area to activate it
 
+        // 3 go through areas and see if playerLocation is within threshold pixels of a prideArea
+        prideAreas.forEach((key, value) -> {
+            Location areaLocation = (Location)value;
+            double xDiff = Math.abs(areaLocation.getX() - playerLocation.getX());
+            double zDiff = Math.abs(areaLocation.getZ() - playerLocation.getZ());
+            double totalDiff = xDiff + zDiff;
+            plugin.getLogger().info("Checking if player " + playerName + " is inside area " + (String)key + ". diff = " + Double.toString(totalDiff));
 
+            if (totalDiff <= threshold) {
+                String areaName = (String)key;
+                if (!lastPlayerActivatedArea.equals(areaName)) {
+                    // activate! ---- ignore if true because we have already activated here
+                    playerAreaHistory.put(playerName, areaName);
+
+                    // result: send a message to the server if a player has entered an area
+                    Bukkit.broadcastMessage(ChatColor.GREEN + playerName + ChatColor.WHITE + " has activated area " + ChatColor.BLUE + areaName + ChatColor.WHITE + "!");
+                }
+            }
+        });
     }
 }
