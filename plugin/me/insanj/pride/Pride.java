@@ -29,10 +29,16 @@ public class Pride extends JavaPlugin {
 		}
 
 		if (commandLabel.equalsIgnoreCase("pride")) {
-			if (args.length == 1 && args[0] == "where") {
+			Player player = (Player) sender;
+
+			if (args.length == 1 && args[0].equalsIgnoreCase("where")) {
 				Location location = player.getLocation();
-				String message = playerListener.formatAreaMessageFromActivatedAreas(getActivatedPrideAreas(location));
-				sender.sendMessage("You are in the following areas: " + ChatColor.Blue + message + ChatColor.WHITE + "!");
+				String message = playerListener.formatAreaMessageFromActivatedAreas(playerListener.getActivatedPrideAreas(location));
+				if (message.length() <= 0) {
+					sender.sendMessage("You are not currently in a Pride area!");
+				} else {
+					sender.sendMessage("You are in the following areas: " + ChatColor.BLUE + message + ChatColor.WHITE + "!");
+				}
 				return true;
 			}
 
@@ -42,7 +48,6 @@ public class Pride extends JavaPlugin {
 			}
 			
 			if (args[0].equalsIgnoreCase("add")) {
-				Player player = (Player) sender;
 				Location location = player.getLocation();
 				String name = args[1];
 
@@ -55,6 +60,8 @@ public class Pride extends JavaPlugin {
 				
 				PrideConfigurator.writePrideAreas(prideFilename, map);
 				playerListener.prideAreas = saved; // update in-memory store of areas from listener
+				
+				sender.sendMessage("Created " + ChatColor.BLUE + name + ChatColor.WHITE + "!");
 
 				return true;
 			}		

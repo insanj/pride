@@ -27,7 +27,7 @@ public class PridePlayerListener implements Listener {
         prideFilename = filename;
         plugin = instance;
         playerAreaHistory = new HashMap();
-        bottleneckThreshold = 1;
+        bottleneckThreshold = 50;
         bottleneck = 0;
         areaThreshold = 50;
     }
@@ -116,9 +116,14 @@ public class PridePlayerListener implements Listener {
             }
         }
 
-        // result: send a message to the server if a player has entered an area
-        String areaMessage = formatAreaMessageFromActivatedAreas(newlyActivatedAreas);
-        Bukkit.broadcastMessage("♔  " + ChatColor.GREEN + playerName + ChatColor.WHITE + " entered " + ChatColor.BLUE + areaMessage + ChatColor.WHITE + "!");
+        if (newlyActivatedAreas.size() <= 0) {
+            // nothing was activated, do nothing in response
+        } else {
+            // result: send a message to the server if a player has entered an area
+            String areaMessage = formatAreaMessageFromActivatedAreas(newlyActivatedAreas);
+            Bukkit.broadcastMessage("♔  " + ChatColor.GREEN + playerName + ChatColor.WHITE + " entered " + ChatColor.BLUE + areaMessage + ChatColor.WHITE + "!");
+        }
+        
         playerAreaHistory.put(playerName, activatedAreas); // update history
     }
 }

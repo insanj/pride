@@ -1,6 +1,6 @@
 name: pride
 main: me.insanj.pride.Pride
-version: 0.2.4
+version: 0.2.5
 description: keep track of your playmates in minecraft
 commands:
   pride:
