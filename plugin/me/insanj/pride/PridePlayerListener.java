@@ -34,8 +34,6 @@ public class PridePlayerListener implements Listener {
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
         //Location from = event.getFrom();
-        //plugin.getLogger().info(String.format("From %.2f,%.2f,%.2f to %.2f,%.2f,%.2f", from.getX(), from.getY(), from.getZ(), to.getX(), to.getY(), to.getZ()));
-
         Location to = event.getTo();
         detectPride(event.getPlayer().getName(), to, event.getPlayer().getWorld());
     }
@@ -49,7 +47,7 @@ public class PridePlayerListener implements Listener {
             //plugin.getLogger("Unable to get prideAreas from pride.txt file");
             prideAreas = new HashMap();
             PrideConfigurator.writePrideAreas(filename, prideAreas);
-            plugin.getLogger().info("Write new pride.txt file because we couldn't find one already");
+            plugin.getLogger().info("Wrote new pride.txt file because we couldn't find one already");
         } 
 
         double threshold = 50; // how close you have to be to an area to activate it
@@ -61,7 +59,7 @@ public class PridePlayerListener implements Listener {
             double xDiff = Math.abs(areaLocation.getX() - playerLocation.getX());
             double zDiff = Math.abs(areaLocation.getZ() - playerLocation.getZ());
             double totalDiff = xDiff + zDiff;
-            plugin.getLogger().info("Checking if player " + playerName + " is inside area " + (String)key + ". diff = " + Double.toString(totalDiff));
+            // plugin.getLogger().info("Checking if player " + playerName + " is inside area " + (String)key + ". diff = " + Double.toString(totalDiff));
 
             if (totalDiff <= threshold) {
                 String areaName = (String)key;
@@ -88,16 +86,16 @@ public class PridePlayerListener implements Listener {
             } else if (areaMessage.contains("and")) {
                 areaMessage = areaName + " ," + areaMessage;
             } else {
-                areaMessage = areaMessage + " and " + areaName;
+                areaMessage = areaMessage + " & " + areaName;
             }
         }
 
         if (areaMessage == null) {
             // wat ?
         } else {
-            Bukkit.broadcastMessage("🦁" + ChatColor.GREEN + playerName + ChatColor.WHITE + " has activated " + ChatColor.BLUE + areaMessage + ChatColor.WHITE + "!");
+            Bukkit.broadcastMessage("♔  " + ChatColor.GREEN + playerName + ChatColor.WHITE + " entered " + ChatColor.BLUE + areaMessage + ChatColor.WHITE + "!");
         }
 
-        playerAreaHistory.put(playerName, newlyActivatedAreas); // update history
+        playerAreaHistory.put(playerName, activatedAreas); // update history
     }
 }
