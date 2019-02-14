@@ -3,7 +3,23 @@ main: me.insanj.pride.Pride
 version: 0.2.5
 description: keep track of your playmates in minecraft
 commands:
-  pride:
-    description: Add your current area to Pride
+  settle:
+    description: Settle your current area to Pride
     usage: |
-             /pride add <name>
+             /settle <name>
+  abandon:
+    description: Abandon a given area in Pride
+    usage: |
+             /abandon <name>
+  here:
+    description: Show every Pride area where you currently are
+    usage: |
+             /here
+  far:
+    description: Calculate how far away you are from a Pride area
+    usage: |
+             /far <name>
+  pride:
+    description: Show the names of all the Pride areas and how far away they are
+    usage: |
+             /pride
