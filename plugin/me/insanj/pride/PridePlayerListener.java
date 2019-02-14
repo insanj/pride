@@ -1,6 +1,7 @@
 package me.insanj.pride;
 
 import java.util.HashMap;
+import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -41,10 +42,7 @@ public class PridePlayerListener implements Listener {
 
     public void detectPride(String playerName, Location playerLocation, World world) {
         // purpose: use a given location to determine if a player has entered/exited an area
-        // 1 last time this player was detected within an area
-        String lastPlayerActivatedArea = (String)playerAreaHistory.getOrDefault(playerName, "");
-
-        // 2 detection areas
+        // 0 read detection areas
         String filename = "pride.txt";
         HashMap prideAreas = PrideConfigurator.readPrideAreas(world, filename);
         if (prideAreas == null) {
@@ -56,7 +54,8 @@ public class PridePlayerListener implements Listener {
 
         double threshold = 50; // how close you have to be to an area to activate it
 
-        // 3 go through areas and see if playerLocation is within threshold pixels of a prideArea
+        // 1 go through areas and see if playerLocation is within threshold pixels of a prideArea
+        ArrayList<String> activatedAreas = new ArrayList<String>();
         prideAreas.forEach((key, value) -> {
             Location areaLocation = (Location)value;
             double xDiff = Math.abs(areaLocation.getX() - playerLocation.getX());
@@ -66,14 +65,39 @@ public class PridePlayerListener implements Listener {
 
             if (totalDiff <= threshold) {
                 String areaName = (String)key;
-                if (!lastPlayerActivatedArea.equals(areaName)) {
-                    // activate! ---- ignore if true because we have already activated here
-                    playerAreaHistory.put(playerName, areaName);
-
-                    // result: send a message to the server if a player has entered an area
-                    Bukkit.broadcastMessage(ChatColor.GREEN + playerName + ChatColor.WHITE + " has activated area " + ChatColor.BLUE + areaName + ChatColor.WHITE + "!");
-                }
+                activatedAreas.add(areaName);
             }
         });
+
+        // 2 remove all old areas from newly activated areas by checking the last time this player was detected within n area(s)
+        ArrayList<String> lastPlayerActivatedAreas = (ArrayList<String>)playerAreaHistory.getOrDefault(playerName, new ArrayList<String>());
+        ArrayList<String> newlyActivatedAreas = new ArrayList<String>();
+        for (String areaName : activatedAreas) {
+            if (lastPlayerActivatedAreas.indexOf(areaName) == -1) {
+                // ignore if > -1 because we have already activated here
+                newlyActivatedAreas.add(areaName);
+                lastPlayerActivatedAreas.add(areaName); // update history
+            }
+        }
+
+        // result: send a message to the server if a player has entered an area
+        String areaMessage = null;
+        for (String areaName : newlyActivatedAreas) {
+            if (areaMessage == null) {
+                areaMessage = areaName;
+            } else if (areaMessage.contains("and")) {
+                areaMessage = areaName + " ," + areaMessage;
+            } else {
+                areaMessage = areaMessage + " and " + areaName;
+            }
+        }
+
+        if (areaMessage == null) {
+            // wat ?
+        } else {
+            Bukkit.broadcastMessage("🦁" + ChatColor.GREEN + playerName + ChatColor.WHITE + " has activated " + ChatColor.BLUE + areaMessage + ChatColor.WHITE + "!");
+        }
+
+        playerAreaHistory.put(playerName, newlyActivatedAreas); // update history
     }
 }
