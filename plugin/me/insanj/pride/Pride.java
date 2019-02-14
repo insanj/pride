@@ -46,7 +46,16 @@ public class Pride extends JavaPlugin {
 	public Boolean settleCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		Player player = (Player) sender;
 		Location location = player.getLocation();
-		String name = args[0];
+
+		String name = "";
+		if (args.length > 1) {
+			for (String argName : args) {
+				name += argName + " ";
+			}
+			name = name.trim();
+		} else {
+			name = args[0];
+		}
 
 		HashMap map = new HashMap();
 		HashMap saved = PrideConfigurator.readPrideAreas(player.getWorld(), prideFilename);
@@ -66,7 +75,16 @@ public class Pride extends JavaPlugin {
 	public Boolean abandonCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		Player player = (Player) sender;
 		Location location = player.getLocation();
-		String name = args[0];
+
+		String name = "";
+		if (args.length > 1) {
+			for (String argName : args) {
+				name += argName + " ";
+			}
+			name = name.trim();
+		} else {
+			name = args[0];
+		}
 
 		HashMap map = new HashMap();
 		HashMap saved = PrideConfigurator.readPrideAreas(player.getWorld(), prideFilename);
@@ -98,8 +116,18 @@ public class Pride extends JavaPlugin {
 	public Boolean farCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		Player player = (Player) sender;
 		Location location = player.getLocation();
-		String areaName = args[0];
+		
+		String name = "";
+		if (args.length > 1) {
+			for (String argName : args) {
+				name += argName + " ";
+			}
+			name = name.trim();
+		} else {
+			name = args[0];
+		}
 
+		String areaName = name;
 		HashMap saved = PrideConfigurator.readPrideAreas(player.getWorld(), prideFilename);
 		Location areaLocation = (Location)saved.get(areaName);
 
