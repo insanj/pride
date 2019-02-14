@@ -2,10 +2,23 @@
 <h3 align="center">🦁  keep track of your playmates in minecraft</h3>
 
 
-![](https://img.shields.io/github/release/insanj/pride.svg)
-![](https://img.shields.io/badge/bukkit-1.13.2-orange.svg)
-![](https://img.shields.io/github/languages/code-size/insanj/pride.svg)
-![](https://img.shields.io/github/license/insanj/pride.svg)
+<p align="center">
+  <a href="https://github.com/insanj/pride/releases">
+    <img src="https://img.shields.io/github/release/insanj/pride.svg" />
+  </a>
+  
+  <a href="https://getbukkit.org/download/craftbukkit">
+    <img src="https://img.shields.io/badge/bukkit-1.13.2-orange.svg" />
+  </a>
+  
+  <a href="https://github.com/insanj/pride/">
+    <img src="https://img.shields.io/github/languages/code-size/insanj/pride.svg" />
+  </a>
+  
+  <a href="https://github.com/insanj/pride/blob/master/LICENSE">
+    <img src="https://img.shields.io/github/license/insanj/pride.svg" />
+  </a>
+</p>  
 
 ## Playing
 
