@@ -22,6 +22,8 @@
 
 ## Playing
 
+> NOTE: Pride was built with Java 10 using Spigot version 1.13.2
+
 - `/pride add <name>`
 
 > adds a new area that is activated when anyone enters within 50 blocks
