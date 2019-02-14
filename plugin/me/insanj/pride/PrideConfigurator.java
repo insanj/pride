@@ -8,8 +8,11 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+
 import org.bukkit.World;
 import org.bukkit.Location;
+
+import org.bukkit.configuration.file.YamlConfiguration;
 
 public class PrideConfigurator {
     static String transformLocationToString(Location location) {
@@ -64,4 +67,13 @@ public class PrideConfigurator {
             return false;
         }
     }
+    
+    /*
+    static YamlConfiguration getConfig() {
+
+    }
+
+    static void writeConfig(String key, String value) {
+
+    }*/
 }
