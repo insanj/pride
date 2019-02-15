@@ -14,31 +14,13 @@ import org.bukkit.Location;
 import org.bukkit.World;
 
 public class Pride extends JavaPlugin {
-	public final String PRIDE_INITIALIZED_KEY = "initialized";
-	public final String PRIDE_FILENAME_KEY = "filename";
-	public final String PRIDE_DISTANCE_KEY = "distance";
-	public String prideFilename;
-
-	private final PridePlayerListener playerListener = new PridePlayerListener(this, "pride.txt");
+	private final PrideConfiguration config = new PrideConfiguration(getServer().getWorld());
+	private final PridePlayerListener playerListener = new PridePlayerListener(this, config);
 
 	@Override
 	public void onEnable() {
 		PluginManager pm = getServer().getPluginManager();
-        pm.registerEvents(playerListener, this);
-
-		// if default value does not exist / is false, assume we need to save a new config file
-		Boolean prideInitialized = getConfig().getBoolean(PRIDE_INITIALIZED_KEY);
-		if (prideInitialized == false) {
-			saveDefaultConfig();
-		}
-
-		// config vars
-		prideFilename = getConfig().getString(PRIDE_FILENAME_KEY);
-		playerListener.areaThreshold = getConfig().getDouble(PRIDE_DISTANCE_KEY);
-		
-		getLogger().info("Read config values: ");
-		getLogger().info("prideFilename: " + prideFilename);
-		getLogger().info("areaThreshold: " + Double.toString(playerListener.areaThreshold));
+		pm.registerEvents(playerListener, this);
 	 }
 
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
@@ -76,15 +58,13 @@ public class Pride extends JavaPlugin {
 		}
 
 		HashMap map = new HashMap();
-		HashMap saved = PrideConfigurator.readPrideAreas(player.getWorld(), prideFilename);
+		HashMap saved = config.getConfigAreas();
 		if (saved != null) {
 			map = saved;
 		}
 		map.put(name, location);
 		
-		PrideConfigurator.writePrideAreas(prideFilename, map);
-		playerListener.prideAreas = saved; // update in-memory store of areas from listener
-		
+		config.setConfigAreas(map);		
 		sender.sendMessage("Created " + ChatColor.BLUE + name + ChatColor.WHITE + "!");
 
 		return true;
@@ -105,15 +85,13 @@ public class Pride extends JavaPlugin {
 		}
 
 		HashMap map = new HashMap();
-		HashMap saved = PrideConfigurator.readPrideAreas(player.getWorld(), prideFilename);
+		HashMap saved = config.getConfigAreas();
 		if (saved != null) {
 			map = saved;
 		}
 		map.remove(name);
 		
-		PrideConfigurator.writePrideAreas(prideFilename, map);
-		playerListener.prideAreas = saved; // update in-memory store of areas from listener
-		
+		config.setConfigAreas(map);		
 		sender.sendMessage("Removed " + ChatColor.BLUE + name + ChatColor.WHITE + "!");
 
 		return true;
@@ -146,7 +124,7 @@ public class Pride extends JavaPlugin {
 		}
 
 		String areaName = name;
-		HashMap saved = PrideConfigurator.readPrideAreas(player.getWorld(), prideFilename);
+		HashMap saved = config.getConfigAreas();
 		Location areaLocation = (Location)saved.get(areaName);
 
 		if (areaLocation == null) {
@@ -169,7 +147,7 @@ public class Pride extends JavaPlugin {
 	public Boolean prideCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		Player player = (Player) sender;
 		Location playerLocation = player.getLocation();
-		HashMap saved = PrideConfigurator.readPrideAreas(player.getWorld(), prideFilename);
+		HashMap saved = config.getConfigAreas();
 		sender.sendMessage("Pride areas:");
 		saved.forEach((k, v) -> {
 			String name = (String)k;

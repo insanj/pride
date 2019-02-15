@@ -14,22 +14,20 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PridePlayerListener implements Listener {
-    public HashMap prideAreas;
-    public int bottleneckThreshold;
-    public double areaThreshold;
-    public String prideFilename;
-
     private final Pride plugin;
+    private final PrideConfiguration config;
+
     private HashMap playerAreaHistory;
     private int bottleneck;
+    public int bottleneckThreshold;
 
-    public PridePlayerListener(Pride instance, String filename) {
-        prideFilename = filename;
+    public PridePlayerListener(Pride instance, PrideConfiguration config) {
         plugin = instance;
+        config = config;
+
         playerAreaHistory = new HashMap();
         bottleneckThreshold = 50;
         bottleneck = 0;
-        areaThreshold = 50;
     }
 
     @EventHandler
@@ -48,25 +46,9 @@ public class PridePlayerListener implements Listener {
         });
     }
 
-    private HashMap getPrideAreas(World world) {
-        if (prideAreas == null) {
-            // setup pride areas
-            String filename = prideFilename;
-            prideAreas = PrideConfigurator.readPrideAreas(world, filename);
-            if (prideAreas == null) {
-                //plugin.getLogger("Unable to get prideAreas from config file");
-                prideAreas = new HashMap();
-                PrideConfigurator.writePrideAreas(filename, prideAreas);
-                plugin.getLogger().info("Wrote new config file because we couldn't find one already");
-            } 
-        }
-
-        return prideAreas;
-    }
-
     public ArrayList<String> getActivatedPrideAreas(Location playerLocation) {
-        double threshold = areaThreshold; // how close you have to be to an area to activate it
-        HashMap prideAreas = getPrideAreas(playerLocation.getWorld());
+        double threshold = config.getConfigDistance(); // how close you have to be to an area to activate it
+        HashMap prideAreas = config.getConfigAreas();
         ArrayList<String> activatedAreas = new ArrayList<String>();
         prideAreas.forEach((key, value) -> {
             Location areaLocation = (Location)value;
