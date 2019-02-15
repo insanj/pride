@@ -6,9 +6,7 @@
   <a href="https://github.com/insanj/pride/releases">
     <img src="https://img.shields.io/github/release/insanj/pride.svg" />
   </a>
-  
-
-  
+ 
   <a href="https://github.com/insanj/pride/">
     <img src="https://img.shields.io/github/languages/code-size/insanj/pride.svg" />
   </a>
@@ -16,20 +14,23 @@
   <a href="https://github.com/insanj/pride/blob/master/LICENSE">
     <img src="https://img.shields.io/github/license/insanj/pride.svg" />
   </a>
-</p>  
-
-<p align="center">
+  
+  <br/>
+  
   <a href="https://jdk.java.net/">
     <img src="https://img.shields.io/badge/java-10.0.2-red.svg" />
   </a>
-    <a href="https://getbukkit.org/download/craftbukkit">
+  
+  <a href="https://getbukkit.org/download/craftbukkit">
     <img src="https://img.shields.io/badge/bukkit-1.13.2-orange.svg" />
+  </a>
+  
+  <a href="https://www.spigotmc.org/resources/pride.64859/">
+    <img src="https://img.shields.io/badge/🚀-Download!-blue.svg" />
   </a>
 </p>
 
 ## Playing
-
-> :rocket: [Now live on Spigot!](https://www.spigotmc.org/resources/pride.64859/)
 
 - `/pride settle <name>`
 - `/pride abandon <name>`
