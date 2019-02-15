@@ -6,11 +6,7 @@
   <a href="https://github.com/insanj/pride/releases">
     <img src="https://img.shields.io/github/release/insanj/pride.svg" />
   </a>
-  
-  <a href="https://getbukkit.org/download/craftbukkit">
-    <img src="https://img.shields.io/badge/bukkit-1.13.2-orange.svg" />
-  </a>
-  
+ 
   <a href="https://github.com/insanj/pride/">
     <img src="https://img.shields.io/github/languages/code-size/insanj/pride.svg" />
   </a>
@@ -18,21 +14,33 @@
   <a href="https://github.com/insanj/pride/blob/master/LICENSE">
     <img src="https://img.shields.io/github/license/insanj/pride.svg" />
   </a>
-</p>  
+  
+  <br/>
+  
+  <a href="https://jdk.java.net/">
+    <img src="https://img.shields.io/badge/java-10.0.2-red.svg" />
+  </a>
+  
+  <a href="https://getbukkit.org/download/craftbukkit">
+    <img src="https://img.shields.io/badge/bukkit-1.13.2-orange.svg" />
+  </a>
+  
+  <a href="https://www.spigotmc.org/resources/pride.64859/">
+    <img src="https://img.shields.io/badge/🚀-Download!-blue.svg" />
+  </a>
+</p>
 
 ## Playing
 
-> NOTE: Pride was built with Java 10 using Spigot version 1.13.2
-
-- `/pride add <name>`
-
-> adds a new area that is activated when anyone enters within 50 blocks
-
-- `/pride where`
-
-> shows the areas you are currently activating (aka inside of)
+- `/pride settle <name>`
+- `/pride abandon <name>`
+- `/pride here`
+- `/pride far <name>`
+- `/pride`
 
 ## Building
+
+> NOTE: Pride requires *at least* Java 10 and Spigot/Bukkit 1.13.2
 
 ### Requirements
 
