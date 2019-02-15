@@ -30,23 +30,33 @@
   </a>
 </p>
 
+## About
+
+Pride is a lightweight Minecraft mod that helps everyone on a Bukkit/Spigot server keep track of each other. Although relatively simple in its design, Pride aims to be really useful and offer a nice supplement to the built-in navigation features of Minecraft.
+
+### 0.3.x Features
+
+- Create "Pride areas", which represent the area where you are located (by default 50 blocks large, but can be configured in the `config.yml`)
+- Detect when entering a "Pride area" and send a message to the server
+- List, remove, and calculate distance from "Pride areas"
+
 ## Playing
 
-- `/pride settle <name>`
-- `/pride abandon <name>`
-- `/pride here`
-- `/pride far <name>`
+- `/settle <name>`
+- `/abandon <name>`
+- `/here`
+- `/far <name>`
 - `/pride`
 
 ## Building
 
-> NOTE: Pride requires *at least* Java 10 and Spigot/Bukkit 1.13.2
-
 ### Requirements
 
 - GNU Make to run the [makefile](makefile), although each command inside this file can be ran on its own
-- a `spigot.jar` or `bukkit.jar` file, currently expected in a local `server/` directory
-- up-to-date jre, jdk, and other java deps that are required for `javac` and `jar` to run
+- a `spigot.jar` or `bukkit.jar` file version **1.13.2** or above, currently expected in a local `server/` directory
+- Java 10 or above and all tools required for `javac` and `jar` to run (optionally, you can use an IDE like Eclipse)
+
+> NOTE: Make sure the Java version on your server and the Java version on the machine that builds Pride are the same, otherwise Bukkit/Spitgot will not allow it to run.
 
 ### Building
 
