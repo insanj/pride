@@ -25,28 +25,25 @@ public class PrideConfiguration {
     private String filename;
     private double distance;
     private HashMap areas;
+    
+    private Pride plugin;
 
-    public PrideConfiguration(World world) {
+    public PrideConfiguration(Pride givenPlugin) {
+        plugin = givenPlugin;
+
 		// if default value does not exist / is false, assume we need to save a new config file
-		Boolean prideInitialized = getConfig().getBoolean(PRIDE_INITIALIZED_KEY);
+		Boolean prideInitialized = plugin.getConfig().getBoolean(PRIDE_INITIALIZED_KEY);
 		if (prideInitialized == false) {
-			saveDefaultConfig();
+			plugin.saveDefaultConfig();
 		}
 
 		// config vars
-		filename = getConfig().getString(PRIDE_FILENAME_KEY);
-        distance = getConfig().getDouble(PRIDE_DISTANCE_KEY);
+		filename = plugin.getConfig().getString(PRIDE_FILENAME_KEY);
+        distance = plugin.getConfig().getDouble(PRIDE_DISTANCE_KEY);
 
-        areas = readPrideAreas(world, filename);
-        if (areas == null) {
-            areas = new HashMap();
-        }
-		getConfig().createSection(PRIDE_AREAS_PATH, areas);
-        saveConfig();
-
-		getLogger().info("Read config values: ");
-		getLogger().info("prideFilename: " + prideFilename);
-		getLogger().info("areaThreshold: " + Double.toString(playerListener.areaThreshold));
+		plugin.getLogger().info("Read config values: ");
+		plugin.getLogger().info("filename: " + filename);
+		plugin.getLogger().info("distance: " + Double.toString(distance));
     }
 
     // public getters
@@ -59,6 +56,21 @@ public class PrideConfiguration {
     }
 
     public HashMap getConfigAreas() {
+        World world = plugin.getServer().getWorlds().get(0);
+        areas = PrideConfiguration.readPrideAreas(world, filename);
+        if (areas == null) {
+            areas = new HashMap();
+        }
+
+        HashMap parsed = new HashMap();
+        areas.forEach((k, v) -> {
+            String stringFromLocation = transformLocationToString((Location)v);
+            parsed.put(k, stringFromLocation);
+        });
+
+		plugin.getConfig().createSection(PRIDE_AREAS_PATH, parsed);
+        plugin.saveConfig();
+        
         return areas;
     }
 

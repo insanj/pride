@@ -14,7 +14,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 
 public class Pride extends JavaPlugin {
-	private final PrideConfiguration config = new PrideConfiguration(getServer().getWorld());
+	private final PrideConfiguration config = new PrideConfiguration(this);
 	private final PridePlayerListener playerListener = new PridePlayerListener(this, config);
 
 	@Override

@@ -21,9 +21,9 @@ public class PridePlayerListener implements Listener {
     private int bottleneck;
     public int bottleneckThreshold;
 
-    public PridePlayerListener(Pride instance, PrideConfiguration config) {
+    public PridePlayerListener(Pride instance, PrideConfiguration givenConfig) {
         plugin = instance;
-        config = config;
+        config = givenConfig;
 
         playerAreaHistory = new HashMap();
         bottleneckThreshold = 50;
