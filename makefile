@@ -14,7 +14,7 @@ plugin:
 	# step 2 compile the plugin into the bin dir
 	javac -cp $(SERVER_PATH)/$(BUKKIT_JAR_FILENAME) -d $(BUILD_PATH)/bin $(SOURCE_PATH)/me/insanj/pride/*.java
 	# step 3 copy config .yml to a new "build in progress" directory
-	cp -r $(SOURCE_PATH)/plugin.yml $(BUILD_PATH)/bin/plugin.yml
+	cp -r $(SOURCE_PATH)/*.yml $(BUILD_PATH)/bin/
 	# step 4 create JAR file using the "build in progress" folder
 	jar -cvf $(BUILD_PATH)/Pride.jar -C $(BUILD_PATH)/bin .
 	# step 5 remove any existing plugin on the server in the server folder
