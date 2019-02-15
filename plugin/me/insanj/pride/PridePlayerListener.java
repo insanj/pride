@@ -34,11 +34,18 @@ public class PridePlayerListener implements Listener {
 
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent event) {
-        if (++bottleneck>=bottleneckThreshold) {
-            bottleneck = 0;
-            Location to = event.getTo();
-            detectPride(event.getPlayer().getName(), to);
-        }
+        PridePlayerListener listener = this;
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
+            @Override
+            public void run() {
+                if (++listener.bottleneck>=listener.bottleneckThreshold) {
+                    listener.bottleneck = 0;
+                    Location to = event.getTo();
+                    String playerName = event.getPlayer().getName();
+                    listener.detectPride(playerName, to);
+                }
+            }
+        });
     }
 
     private HashMap getPrideAreas(World world) {
