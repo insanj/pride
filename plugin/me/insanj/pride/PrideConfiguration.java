@@ -19,12 +19,12 @@ public class PrideConfiguration {
     public final String PRIDE_INITIALIZED_KEY = "initialized";
 	public final String PRIDE_FILENAME_KEY = "filename";
     public final String PRIDE_DISTANCE_KEY = "distance";
-    public final String PRIDE_AREAS_PATH = "areas";
+    public final String PRIDE_WORLDS_PATH = "worlds";
     
     // private vars & constructor (use getters to get values from outside)
     private String filename;
     private double distance;
-    private HashMap areas;
+    private HashMap worlds;
     
     private Pride plugin;
 
@@ -40,6 +40,23 @@ public class PrideConfiguration {
 		// config vars
 		filename = plugin.getConfig().getString(PRIDE_FILENAME_KEY);
         distance = plugin.getConfig().getDouble(PRIDE_DISTANCE_KEY);
+        
+        HashMap unparsedWorlds = plugin.getConfig().getConfigurationSection(PRIDE_WORLDS_PATH).getValues(true);
+        if (unparsedWorlds == null) {
+            unparsedWorlds = new HashMap();
+        }
+
+        HashMap parsedWorlds = new HashMap();
+        unparsedAreas.forEach((worldName, worldAreas) -> {
+            HashMap unparsedWorldAreas = (HashMap)worldAreas;
+            Hashmap parsedWorldAreas = new HashMap();
+            unparsedWorldAreas.forEach((areaName, areaLocation) -> {
+                Location locationFromString = transformStringToLocation(world, (String));
+                parsedWorldAreas.put(areaName, locationFromString);
+            })
+            parsedWorlds.put(worldName, parsedWorldAreas);
+        });
+
 
 		plugin.getLogger().info("Read config values: ");
 		plugin.getLogger().info("filename: " + filename);
@@ -55,32 +72,32 @@ public class PrideConfiguration {
         return distance;
     }
 
-    public HashMap getConfigAreas() {
-        World world = plugin.getServer().getWorlds().get(0);
-        areas = PrideConfiguration.readPrideAreas(world, filename);
-        if (areas == null) {
-            areas = new HashMap();
-        }
+    public HashMap getConfigAreas(World world) {
 
-        HashMap parsed = new HashMap();
-        areas.forEach((k, v) -> {
-            String stringFromLocation = transformLocationToString((Location)v);
-            parsed.put(k, stringFromLocation);
-        });
-
-		plugin.getConfig().createSection(PRIDE_AREAS_PATH, parsed);
-        plugin.saveConfig();
-        
         return areas;
     }
 
     public void setConfigAreas(HashMap givenAreas) {
-        //getConfig().createSection(PRIDE_AREAS_PATH, givenAreas);
-        //saveConfig();
-        areas = givenAreas;
+        if (givenAreas == null) {
+            return;
+        }
+
+        HashMap parsed = new HashMap();
+        input.forEach((k, v) -> {
+            String stringFromLocation = transformLocationToString((Location)v);
+            parsed.put(k, stringFromLocation);
+        });
+
+        String configPathname = configAreasPathname(world);
+        plugin.getConfig().createSection(configPathname, parsed);
+        plugin.saveConfig();
     }
 
     // private funcs
+    private String configAreasPathname(World world) {
+        return PrideConfiguration.PRIDE_AREAS_PATH + "." + world.getUID();
+    }
+
     static public HashMap readPrideAreas(World world, String filename) {
         try {
             File f = new File(filename);
@@ -104,11 +121,7 @@ public class PrideConfiguration {
 
     static public Boolean writePrideAreas(String filename, HashMap input) {
         try {
-            HashMap parsed = new HashMap();
-            input.forEach((k, v) -> {
-                String stringFromLocation = transformLocationToString((Location)v);
-                parsed.put(k, stringFromLocation);
-            });
+
 
             File f = new File(filename);
             FileOutputStream fos = new FileOutputStream(f);
