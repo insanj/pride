@@ -26,7 +26,7 @@
   </a>
   
   <a href="https://www.spigotmc.org/resources/pride.64859/">
-    <img src="https://img.shields.io/badge/🚀-Download!-blue.svg" />
+    <img src="https://img.shields.io/badge/🚀-Download%20on%20spigotmc.org-blue.svg" />
   </a>
 </p>
 
