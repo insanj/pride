@@ -36,7 +36,7 @@ public class Pride extends JavaPlugin {
 				HashMap saved = globalConfig.getConfigAreas(world);
 
 				saved.put(name, location);
-				globalConfig.setConfigAreas(saved);		
+				globalConfig.setConfigAreas(world, saved);		
 
 				sender.sendMessage("Created " + ChatColor.BLUE + name + ChatColor.WHITE + "!");
 
@@ -57,7 +57,7 @@ public class Pride extends JavaPlugin {
 				HashMap saved = globalConfig.getConfigAreas(world);
 
 				saved.remove(name);
-				globalConfig.setConfigAreas(saved);
+				globalConfig.setConfigAreas(world, saved);
 
 				sender.sendMessage("Removed " + ChatColor.BLUE + name + ChatColor.WHITE + "!");
 		

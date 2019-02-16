@@ -33,6 +33,8 @@ public class PrideConfiguration {
     public PrideConfiguration(Pride givenPlugin) {
         plugin = givenPlugin;
 
+        plugin.reloadConfig();
+
 		// if default value does not exist / is false, assume we need to save a new config file
 		Boolean prideInitialized = plugin.getConfig().getBoolean(PRIDE_INITIALIZED_KEY);
 		if (prideInitialized == null || prideInitialized == false) {
@@ -95,26 +97,27 @@ public class PrideConfiguration {
     }
 
     public void setConfigAreas(World world, HashMap givenAreas) {
-        if (givenAreas == null) {
+        if (world == null || givenAreas == null) {
             return;
         }
 
-        HashMap areas = getConfigAreas(world);
-        HashMap encodedWorlds = new HashMap();
-        givenAreas.forEach((worldUID, worldAreas) -> {
-            HashMap parsedWorldAreas = (HashMap)worldAreas;
-            HashMap encodedWorldAreas = new HashMap();
-            String worldUIDString = worldUID.toString();
-            parsedWorldAreas.forEach((areaName, areaLocation) -> {
-                String stringFromLocation = transformLocationToString((Location)areaLocation);
-                encodedWorldAreas.put(areaName, stringFromLocation);
-            });
-            encodedWorlds.put(worldUIDString, encodedWorldAreas);
+        HashMap encodedAreas = new HashMap();
+        givenAreas.forEach((areaName, areaLocation) -> {
+            String stringFromLocation = transformLocationToString((Location)areaLocation);
+            encodedAreas.put(areaName, stringFromLocation);
         });
 
-        plugin.getConfig().createSection(PRIDE_WORLDS_PATH, encodedWorlds);
+                /*givenAreas.forEach((worldUID, worldAreas) -> {
+            HashMap parsedWorldAreas = (HashMap)worldAreas;
+            HashMap encodedWorldAreas = new HashMap();
+            String worldUIDString = worldUID.toString();*/
+        //});
+
+        String worldUIDString = world.getUID().toString();
+        String worldSectionPath = PRIDE_WORLDS_PATH + "." + worldUIDString;
+        plugin.getConfig().createSection(worldSectionPath, encodedAreas);
         plugin.saveConfig();
-        worlds = encodedWorlds;
+        worlds.put(world.getUID(), givenAreas);
     }
 
     // static helper functions
