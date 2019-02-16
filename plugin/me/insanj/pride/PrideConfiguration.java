@@ -1,6 +1,7 @@
 package me.insanj.pride;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +13,7 @@ import java.io.Serializable;
 import org.bukkit.World;
 import org.bukkit.Location;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 public class PrideConfiguration {
@@ -33,7 +35,7 @@ public class PrideConfiguration {
 
 		// if default value does not exist / is false, assume we need to save a new config file
 		Boolean prideInitialized = plugin.getConfig().getBoolean(PRIDE_INITIALIZED_KEY);
-		if (prideInitialized == false) {
+		if (prideInitialized == null || prideInitialized == false) {
 			plugin.saveDefaultConfig();
 		}
 
@@ -41,26 +43,33 @@ public class PrideConfiguration {
 		filename = plugin.getConfig().getString(PRIDE_FILENAME_KEY);
         distance = plugin.getConfig().getDouble(PRIDE_DISTANCE_KEY);
         
-        HashMap unparsedWorlds = plugin.getConfig().getConfigurationSection(PRIDE_WORLDS_PATH).getValues(true);
-        if (unparsedWorlds == null) {
-            unparsedWorlds = new HashMap();
+        ConfigurationSection unparsedWorldsSection = plugin.getConfig().getConfigurationSection(PRIDE_WORLDS_PATH);
+        if (unparsedWorldsSection != null) {
+            HashMap unparsedWorlds = (HashMap)unparsedWorldsSection.getValues(true);
+            HashMap parsedWorlds = new HashMap();
+
+            for (Object worldUIDStringObject : unparsedWorlds.keySet()) {
+                String worldUIDString = (String)worldUIDStringObject;
+                Object worldAreas = unparsedWorlds.get(worldUIDString);
+                HashMap unparsedWorldAreas = (HashMap)worldAreas;
+                HashMap parsedWorldAreas = new HashMap();
+                UUID worldUID = UUID.fromString((String)worldUIDString);
+
+                for (Object areaNameObject : unparsedWorldAreas.keySet()) {
+                    String areaName = (String)areaNameObject;
+                    Object areaLocation = unparsedWorldAreas.get(areaName);
+                    World world = plugin.getServer().getWorld(worldUID);
+                    Location locationFromString = transformStringToLocation(world, (String)areaLocation);
+                    parsedWorldAreas.put(areaName, locationFromString);
+                }
+
+                parsedWorlds.put(worldUID, parsedWorldAreas);
+            }
+
+            worlds = parsedWorlds;
+        } else {
+            worlds = new HashMap();
         }
-
-        HashMap parsedWorlds = new HashMap();
-        unparsedAreas.forEach((worldName, worldAreas) -> {
-            HashMap unparsedWorldAreas = (HashMap)worldAreas;
-            Hashmap parsedWorldAreas = new HashMap();
-            unparsedWorldAreas.forEach((areaName, areaLocation) -> {
-                Location locationFromString = transformStringToLocation(world, (String));
-                parsedWorldAreas.put(areaName, locationFromString);
-            })
-            parsedWorlds.put(worldName, parsedWorldAreas);
-        });
-
-
-		plugin.getLogger().info("Read config values: ");
-		plugin.getLogger().info("filename: " + filename);
-		plugin.getLogger().info("distance: " + Double.toString(distance));
     }
 
     // public getters
@@ -72,69 +81,42 @@ public class PrideConfiguration {
         return distance;
     }
 
-    public HashMap getConfigAreas(World world) {
-
-        return areas;
+    public HashMap getConfigWorlds() {
+        return worlds;
     }
 
-    public void setConfigAreas(HashMap givenAreas) {
+    public HashMap getConfigAreas(World world) {
+        Object result = worlds.get(world.getUID());
+        if (result == null) {
+            return new HashMap();
+        } else {
+            return (HashMap)result;
+        }
+    }
+
+    public void setConfigAreas(World world, HashMap givenAreas) {
         if (givenAreas == null) {
             return;
         }
 
-        HashMap parsed = new HashMap();
-        input.forEach((k, v) -> {
-            String stringFromLocation = transformLocationToString((Location)v);
-            parsed.put(k, stringFromLocation);
+        HashMap areas = getConfigAreas(world);
+        HashMap encodedWorlds = new HashMap();
+        givenAreas.forEach((worldUID, worldAreas) -> {
+            HashMap parsedWorldAreas = (HashMap)worldAreas;
+            HashMap encodedWorldAreas = new HashMap();
+            String worldUIDString = worldUID.toString();
+            parsedWorldAreas.forEach((areaName, areaLocation) -> {
+                String stringFromLocation = transformLocationToString((Location)areaLocation);
+                encodedWorldAreas.put(areaName, stringFromLocation);
+            });
+            encodedWorlds.put(worldUIDString, encodedWorldAreas);
         });
 
-        String configPathname = configAreasPathname(world);
-        plugin.getConfig().createSection(configPathname, parsed);
+        plugin.getConfig().createSection(PRIDE_WORLDS_PATH, encodedWorlds);
         plugin.saveConfig();
+        worlds = encodedWorlds;
     }
 
-    // private funcs
-    private String configAreasPathname(World world) {
-        return PrideConfiguration.PRIDE_AREAS_PATH + "." + world.getUID();
-    }
-
-    static public HashMap readPrideAreas(World world, String filename) {
-        try {
-            File f = new File(filename);
-            FileInputStream fis = new FileInputStream(f);
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            HashMap output = (HashMap) ois.readObject();
-            ois.close();
-
-            HashMap parsed = new HashMap();
-            output.forEach((k, v) -> {
-                Location locationFromString = transformStringToLocation(world, (String)v);
-                parsed.put(k, locationFromString);
-            });
-
-            return parsed;
-        } catch (Exception e) {
-            System.out.println(e);
-            return null;
-        }
-    }
-
-    static public Boolean writePrideAreas(String filename, HashMap input) {
-        try {
-
-
-            File f = new File(filename);
-            FileOutputStream fos = new FileOutputStream(f);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(parsed);
-            oos.close();
-            return true;
-        } catch (Exception e) {
-            System.out.println(e);
-            return false;
-        }
-    }
-    
     // static helper functions
     static String transformLocationToString(Location location) {
         return String.format("%.2f,%.2f,%.2f", location.getX(),location.getY(),location.getZ());

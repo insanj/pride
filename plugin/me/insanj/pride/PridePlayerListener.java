@@ -48,7 +48,8 @@ public class PridePlayerListener implements Listener {
 
     public ArrayList<String> getActivatedPrideAreas(Location playerLocation) {
         double threshold = config.getConfigDistance(); // how close you have to be to an area to activate it
-        HashMap prideAreas = config.getConfigAreas();
+        World world = playerLocation.getWorld();
+        HashMap prideAreas = config.getConfigAreas(world);
         ArrayList<String> activatedAreas = new ArrayList<String>();
         prideAreas.forEach((key, value) -> {
             Location areaLocation = (Location)value;
