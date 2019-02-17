@@ -1,6 +1,6 @@
 name: pride
 main: me.insanj.pride.Pride
-version: 0.3.5
+version: 0.3.6
 description: keep track of your playmates in minecraft
 commands:
   settle:
@@ -14,7 +14,7 @@ commands:
   here:
     description: Show every Pride area where you currently are
     usage: |
-             /here
+             /here <optional:username>
   far:
     description: Calculate how far away you are from a Pride area
     usage: |
