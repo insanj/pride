@@ -1,5 +1,6 @@
 package me.insanj.pride;
 
+import java.util.Map;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -47,25 +48,24 @@ public class PrideConfiguration {
         worlds = loadConfigWorldsFromDisk();
     }
 
-    private void loadConfigWorldsFromDisk() {
+    private HashMap loadConfigWorldsFromDisk() {
         // first load from disk
         ConfigurationSection unparsedWorldsSection = plugin.getConfig().getConfigurationSection(PRIDE_WORLDS_PATH);
         if (unparsedWorldsSection != null) {
-            HashMap unparsedWorlds = (HashMap)unparsedWorldsSection.getValues(true);
             HashMap parsedWorlds = new HashMap();
+            Map<String, Object> unparsedWorlds = (Map<String, Object>)unparsedWorldsSection.getValues(false);
 
-            for (Object worldUIDStringObject : unparsedWorlds.keySet()) {
-                String worldUIDString = (String)worldUIDStringObject;
-                ConfigurationSection worldAreas = (ConfigurationSection)unparsedWorlds.get(worldUIDString);
-                HashMap unparsedWorldAreas = (HashMap)worldAreas.getValues(true);
+            for (String worldUIDString : unparsedWorlds.keySet()) {
+                ConfigurationSection worldAreasSection = (ConfigurationSection) unparsedWorlds.get(worldUIDString);
+                String worldAreasSectionPath = worldAreasSection.getCurrentPath();
+                Map<String, Object> unparsedWorldAreas = (Map<String, Object>) plugin.getConfig().getConfigurationSection(worldAreasSectionPath).getValues(false);
+               
                 HashMap parsedWorldAreas = new HashMap();
                 UUID worldUID = UUID.fromString((String)worldUIDString);
-
-                for (Object areaNameObject : unparsedWorldAreas.keySet()) {
-                    String areaName = (String)areaNameObject;
-                    Object areaLocation = unparsedWorldAreas.get(areaName);
-                    World world = plugin.getServer().getWorld(worldUID);
-                    Location locationFromString = transformStringToLocation(world, (String)areaLocation);
+                World world = plugin.getServer().getWorld(worldUID);
+                for (String areaName : unparsedWorldAreas.keySet()) {
+                    String areaLocationString = (String)unparsedWorldAreas.get(areaName);
+                    Location locationFromString = transformStringToLocation(world, areaLocationString);
                     parsedWorldAreas.put(areaName, locationFromString);
                 }
 
