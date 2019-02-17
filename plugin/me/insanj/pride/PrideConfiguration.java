@@ -44,7 +44,11 @@ public class PrideConfiguration {
 		// config vars
 		filename = plugin.getConfig().getString(PRIDE_FILENAME_KEY);
         distance = plugin.getConfig().getDouble(PRIDE_DISTANCE_KEY);
-        
+        worlds = loadConfigWorldsFromDisk();
+    }
+
+    private void loadConfigWorldsFromDisk() {
+        // first load from disk
         ConfigurationSection unparsedWorldsSection = plugin.getConfig().getConfigurationSection(PRIDE_WORLDS_PATH);
         if (unparsedWorldsSection != null) {
             HashMap unparsedWorlds = (HashMap)unparsedWorldsSection.getValues(true);
@@ -52,8 +56,8 @@ public class PrideConfiguration {
 
             for (Object worldUIDStringObject : unparsedWorlds.keySet()) {
                 String worldUIDString = (String)worldUIDStringObject;
-                Object worldAreas = unparsedWorlds.get(worldUIDString);
-                HashMap unparsedWorldAreas = (HashMap)worldAreas;
+                ConfigurationSection worldAreas = (ConfigurationSection)unparsedWorlds.get(worldUIDString);
+                HashMap unparsedWorldAreas = (HashMap)worldAreas.getValues(true);
                 HashMap parsedWorldAreas = new HashMap();
                 UUID worldUID = UUID.fromString((String)worldUIDString);
 
@@ -68,9 +72,9 @@ public class PrideConfiguration {
                 parsedWorlds.put(worldUID, parsedWorldAreas);
             }
 
-            worlds = parsedWorlds;
+            return parsedWorlds;
         } else {
-            worlds = new HashMap();
+            return new HashMap();
         }
     }
 
@@ -106,12 +110,6 @@ public class PrideConfiguration {
             String stringFromLocation = transformLocationToString((Location)areaLocation);
             encodedAreas.put(areaName, stringFromLocation);
         });
-
-                /*givenAreas.forEach((worldUID, worldAreas) -> {
-            HashMap parsedWorldAreas = (HashMap)worldAreas;
-            HashMap encodedWorldAreas = new HashMap();
-            String worldUIDString = worldUID.toString();*/
-        //});
 
         String worldUIDString = world.getUID().toString();
         String worldSectionPath = PRIDE_WORLDS_PATH + "." + worldUIDString;
