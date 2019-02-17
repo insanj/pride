@@ -117,27 +117,6 @@ public class Pride extends JavaPlugin {
             }
         });
 
-/*
-        getCommand("where").setExecutor(new CommandExecutor() {
-            public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-                if (args.length <= 0) {
-                    return false;
-                }
-
-                String playerName = args[0];
-                Location location = player.getLocation();
-                String message = globalPlayerListener.formatAreaMessageFromActivatedAreas(globalPlayerListener.getActivatedPrideAreas(location));
-                
-                if (message == null || message.length() <= 0) {
-                    sender.sendMessage(playerName + "is not currently in a Pride area!");
-                } else {
-                    sender.sendMessage(ChatColor.GREEN + playerName + ChatColor.WHITE + " is in the following areas: " + ChatColor.BLUE + message + ChatColor.WHITE + "!");
-                }
-                
-                return true;
-            }
-        });*/
-
         getCommand("far").setExecutor(new CommandExecutor() {
             public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
                 if (args.length <= 0) {
@@ -197,7 +176,7 @@ public class Pride extends JavaPlugin {
                         sender.sendMessage(ChatColor.RED + "Pride area not found");
                         return false;
                     }
-                    
+
                     Location playerLocation = player.getLocation();
 
                     sender.sendMessage("Pride areas:");
