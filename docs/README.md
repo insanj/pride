@@ -42,6 +42,16 @@ Pride will be open sourced at version 1.0!
 - Detect when entering a "Pride area" and send a message to the server
 - List, remove, and calculate distance from "Pride areas"
 
+#### Example config.yml
+```YAML
+worlds:
+  75310a3a-6bb4-4e0c-8409-9e6648ac7f3e:
+    Ocean Monument Entrance: -1287.35,29.56,-7453.77
+    Birch & Brick: -593.27,83.00,-4818.50
+    Cottage on the Cliff of the Icebergs: -910.49,74.00,-7357.35
+    Chicken Farm: -705.96,67.00,-8065.75
+```
+
 ## Playing
 
 - `/settle <name>`
@@ -56,9 +66,9 @@ Pride was not built using Eclipse or any other IDE. Although you can use one, th
 
 ### Requirements
 
-- GNU Make to run the [makefile](makefile), although each command inside this file can be ran on its own
-- a `spigot.jar` or `bukkit.jar` file version **1.13.2** or above, currently expected in a local `server/` directory
-- Java 10 or above and all tools required for `javac` and `jar` to run
+- [Make](https://www.gnu.org/software/make/#download) to run the [makefile](https://github.com/insanj/pride/blob/master/makefile), although each command inside this file can be ran on its own
+- [spigot](https://getbukkit.org/download/spigot)`.jar` or `bukkit.jar` version **1.13.2** or above, currently expected in a local `server/` directory
+- [Java](https://www.oracle.com/technetwork/java/javase/downloads/index.html) 10 or above, required for `javac` and `jar` to run
 
 > NOTE: Make sure the Java version on your server and the Java version on the machine that builds Pride are the same, otherwise Bukkit/Spitgot will not allow it to run.
 
@@ -83,5 +93,5 @@ github.com/insanj
 
 ## License
 
-See [LICENSE](LICENSE). (c) 2019 Julian Weiss.
+See [LICENSE](https://github.com/insanj/pride/blob/master/LICENSE). (c) 2019 Julian Weiss.
 
