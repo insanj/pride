@@ -20,12 +20,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public class PrideConfiguration {
     // const keys
     public final String PRIDE_INITIALIZED_KEY = "initialized";
-    public final String PRIDE_FILENAME_KEY = "filename";
     public final String PRIDE_DISTANCE_KEY = "distance";
     public final String PRIDE_WORLDS_PATH = "worlds";
     
     // private vars & constructor (use getters to get values from outside)
-    private String filename;
     private double distance;
     private HashMap worlds;
     
@@ -43,7 +41,6 @@ public class PrideConfiguration {
         }
 
         // config vars
-        filename = plugin.getConfig().getString(PRIDE_FILENAME_KEY);
         distance = plugin.getConfig().getDouble(PRIDE_DISTANCE_KEY);
         worlds = loadConfigWorldsFromDisk();
     }
@@ -79,10 +76,6 @@ public class PrideConfiguration {
     }
 
     // public getters
-    public String getConfigFilename() {
-        return filename;
-    }
-
     public double getConfigDistance() {
         return distance;
     }

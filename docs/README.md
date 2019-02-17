@@ -44,6 +44,8 @@ Pride will be open sourced at version 1.0!
 
 #### Example config.yml
 ```YAML
+initialized: true
+distance: 50
 worlds:
   75310a3a-6bb4-4e0c-8409-9e6648ac7f3e:
     Ocean Monument Entrance: -1287.35,29.56,-7453.77
@@ -56,7 +58,7 @@ worlds:
 
 - `/settle <name>`
 - `/abandon <name>`
-- `/here`
+- `/here <optional:username>`
 - `/far <name>`
 - `/pride`
 
