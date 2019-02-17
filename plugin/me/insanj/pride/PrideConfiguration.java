@@ -20,7 +20,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public class PrideConfiguration {
     // const keys
     public final String PRIDE_INITIALIZED_KEY = "initialized";
-	public final String PRIDE_FILENAME_KEY = "filename";
+    public final String PRIDE_FILENAME_KEY = "filename";
     public final String PRIDE_DISTANCE_KEY = "distance";
     public final String PRIDE_WORLDS_PATH = "worlds";
     
@@ -36,14 +36,14 @@ public class PrideConfiguration {
 
         plugin.reloadConfig();
 
-		// if default value does not exist / is false, assume we need to save a new config file
-		Boolean prideInitialized = plugin.getConfig().getBoolean(PRIDE_INITIALIZED_KEY);
-		if (prideInitialized == null || prideInitialized == false) {
-			plugin.saveDefaultConfig();
-		}
+        // if default value does not exist / is false, assume we need to save a new config file
+        Boolean prideInitialized = plugin.getConfig().getBoolean(PRIDE_INITIALIZED_KEY);
+        if (prideInitialized == null || prideInitialized == false) {
+            plugin.saveDefaultConfig();
+        }
 
-		// config vars
-		filename = plugin.getConfig().getString(PRIDE_FILENAME_KEY);
+        // config vars
+        filename = plugin.getConfig().getString(PRIDE_FILENAME_KEY);
         distance = plugin.getConfig().getDouble(PRIDE_DISTANCE_KEY);
         worlds = loadConfigWorldsFromDisk();
     }
