@@ -26,12 +26,12 @@ public class Pride extends JavaPlugin {
         getCommand("settle").setExecutor(new CommandExecutor() {
             public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
                 if (args.length <= 0) {
-                    sender.sendMessage(ChatColor.RED + "Need to give area name in order to settle it");
+                    sender.sendMessage(ChatColor.RED + "☹  Need to give area name in order to settle it");
                     return false;
                 }
 
                 if (!(sender instanceof Player)) {
-                    sender.sendMessage(ChatColor.RED + "Need to be a player to execute this command because it uses your current world");
+                    sender.sendMessage(ChatColor.RED + "☹  Need to be a player to execute this command because it uses your current world");
                     return false;
                 }
 
@@ -41,14 +41,14 @@ public class Pride extends JavaPlugin {
                 String name = Pride.areaNameFromArgs(args);
                 HashMap saved = globalConfig.getConfigAreas(world);
                 if (saved == null) {
-                    sender.sendMessage(ChatColor.RED + "Pride area not found");
+                    sender.sendMessage(ChatColor.RED + "☹  Pride area not found");
                     return false;
                 }
 
                 saved.put(name, location);
                 globalConfig.setConfigAreas(world, saved);		
 
-                sender.sendMessage("Created " + ChatColor.BLUE + name + ChatColor.WHITE + "!");
+                sender.sendMessage("☆  Created " + ChatColor.BLUE + name + ChatColor.WHITE + "!");
 
                 return true;
             }
@@ -57,12 +57,12 @@ public class Pride extends JavaPlugin {
         getCommand("abandon").setExecutor(new CommandExecutor() {
             public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
                 if (args.length <= 0) {
-                    sender.sendMessage(ChatColor.RED + "Need to give area name in order to abandon it");
+                    sender.sendMessage(ChatColor.RED + "☹  Need to give area name in order to abandon it");
                     return false;
                 }
 
                 if (!(sender instanceof Player)) {
-                    sender.sendMessage(ChatColor.RED + "Need to be a player to execute this command because it uses your current world");
+                    sender.sendMessage(ChatColor.RED + "☹  Need to be a player to execute this command because it uses your current world");
                     return false;
                 }
                 
@@ -72,14 +72,14 @@ public class Pride extends JavaPlugin {
                 String name = Pride.areaNameFromArgs(args);
                 HashMap saved = globalConfig.getConfigAreas(world);
                 if (saved == null) {
-                    sender.sendMessage(ChatColor.RED + "Pride area not found");
+                    sender.sendMessage(ChatColor.RED + "☹  Pride area not found");
                     return false;
                 }
 
                 saved.remove(name);
                 globalConfig.setConfigAreas(world, saved);
 
-                sender.sendMessage("Removed " + ChatColor.BLUE + name + ChatColor.WHITE + "!");
+                sender.sendMessage("☆  Removed " + ChatColor.BLUE + name + ChatColor.WHITE + "!");
         
                 return true;
             }
@@ -93,11 +93,11 @@ public class Pride extends JavaPlugin {
                     playerName = args[0];
                     player = Bukkit.getPlayer(playerName);
                     if (player == null) {
-                        sender.sendMessage("Player not found with name:" + playerName);
+                        sender.sendMessage("☹  Player not found with name:" + playerName);
                         return false;
                     }
                 } else if (!(sender instanceof Player)) {
-                    sender.sendMessage("Cannot get player location if you are not a player");
+                    sender.sendMessage("☹  Cannot get player location if you are not a player");
                     return false;
                 } else {
                     player = (Player)sender;
@@ -108,9 +108,9 @@ public class Pride extends JavaPlugin {
                 String message = globalPlayerListener.formatAreaMessageFromActivatedAreas(globalPlayerListener.getActivatedPrideAreas(location));
                 
                 if (message == null || message.length() <= 0) {
-                    sender.sendMessage(playerName + "is not currently in a Pride area!");
+                    sender.sendMessage("☆  " + ChatColor.GREEN + playerName + ChatColor.WHITE + " is not currently in a Pride area!");
                 } else {
-                    sender.sendMessage(ChatColor.GREEN + playerName + ChatColor.WHITE + " is in the following areas: " + ChatColor.BLUE + message + ChatColor.WHITE + "!");
+                    sender.sendMessage("☆  " + ChatColor.GREEN + playerName + ChatColor.WHITE + " is in the following areas: " + ChatColor.BLUE + message + ChatColor.WHITE + "!");
                 }
                 
                 return true;
@@ -120,12 +120,12 @@ public class Pride extends JavaPlugin {
         getCommand("far").setExecutor(new CommandExecutor() {
             public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
                 if (args.length <= 0) {
-                    sender.sendMessage(ChatColor.RED + "Need to give area name in order to figure out how far you are from it");
+                    sender.sendMessage(ChatColor.RED + "☹  Need to give area name in order to figure out how far you are from it");
                     return false;
                 }
 
                 if (!(sender instanceof Player)) {
-                    sender.sendMessage(ChatColor.RED + "Need to be a player to execute this command because it uses your current location");
+                    sender.sendMessage(ChatColor.RED + "☹  Need to be a player to execute this command because it uses your current location");
                     return false;
                 }
 
@@ -135,13 +135,13 @@ public class Pride extends JavaPlugin {
                 String areaName = Pride.areaNameFromArgs(args);
                 HashMap saved = globalConfig.getConfigAreas(world);
                 if (saved == null) {
-                    sender.sendMessage(ChatColor.RED + "Pride area not found");
+                    sender.sendMessage(ChatColor.RED + "☹  Pride area not found");
                     return false;
                 }
 
                 Location areaLocation = (Location)saved.get(areaName);
                 if (areaLocation == null) {
-                    sender.sendMessage("Could not find an area called " + ChatColor.RED + areaName);
+                    sender.sendMessage("☹  Could not find an area called " + ChatColor.RED + areaName);
                     return false;
                 }
         
@@ -150,7 +150,7 @@ public class Pride extends JavaPlugin {
                 double zDiff = location.getZ() - areaLocation.getZ();
                 double yDiff = location.getY() - areaLocation.getY();
         
-                sender.sendMessage("How far away you are from " + ChatColor.BLUE + areaName + ChatColor.WHITE + ":");
+                sender.sendMessage("✄  How far away you are from " + ChatColor.BLUE + areaName + ChatColor.WHITE + ":");
                 sender.sendMessage("x " + ChatColor.GREEN + Double.toString(xDiff));
                 sender.sendMessage("y " + ChatColor.GREEN + Double.toString(yDiff));
                 sender.sendMessage("z " + ChatColor.GREEN + Double.toString(zDiff));
@@ -162,12 +162,12 @@ public class Pride extends JavaPlugin {
         getCommand("between").setExecutor(new CommandExecutor() {
             public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
                 if (args.length <= 0) {
-                    sender.sendMessage(ChatColor.RED + "Need to give area name in order to figure out how far you are from it");
+                    sender.sendMessage(ChatColor.RED + "☹  Need to give area name in order to figure out how far you are from it");
                     return false;
                 }
 
                 if (!(sender instanceof Player)) {
-                    sender.sendMessage(ChatColor.RED + "Need to be a player to execute this command because it uses your world");
+                    sender.sendMessage(ChatColor.RED + "☹  Need to be a player to execute this command because it uses your world");
                     return false;
                 }
 
@@ -175,7 +175,7 @@ public class Pride extends JavaPlugin {
                 World world = player.getWorld();
                 HashMap saved = globalConfig.getConfigAreas(world);
                 if (saved == null) {
-                    sender.sendMessage(ChatColor.RED + "Pride area not found");
+                    sender.sendMessage(ChatColor.RED + "☹  Pride area not found");
                     return false;
                 }
 
@@ -186,7 +186,7 @@ public class Pride extends JavaPlugin {
 
                 String[] argSplit = argString.split(",");
                 if (argSplit.length != 2) {
-                    sender.sendMessage(ChatColor.RED + "Use a comma to separate the two Pride areas");
+                    sender.sendMessage(ChatColor.RED + "☹  Use a comma to separate the two Pride areas");
                     return false;
                 }
 
@@ -195,13 +195,13 @@ public class Pride extends JavaPlugin {
 
                 Location firstAreaLocation = (Location)saved.get(firstAreaName);
                 if (firstAreaLocation == null) {
-                    sender.sendMessage("Could not find area: " + ChatColor.RED + firstAreaName);
+                    sender.sendMessage("☹  Could not find area: " + ChatColor.RED + firstAreaName);
                     return false;
                 }
 
                 Location secondAreaLocation = (Location)saved.get(secondAreaName);
                 if (secondAreaLocation == null) {
-                    sender.sendMessage("Could not find area: " + ChatColor.RED + secondAreaName);
+                    sender.sendMessage("☹  Could not find area: " + ChatColor.RED + secondAreaName);
                     return false;
                 }
         
@@ -210,7 +210,7 @@ public class Pride extends JavaPlugin {
                 double zDiff = firstAreaLocation.getZ() - secondAreaLocation.getZ();
                 double yDiff = firstAreaLocation.getY() - secondAreaLocation.getY();
         
-                sender.sendMessage("Distance between " + ChatColor.BLUE + firstAreaName + ChatColor.WHITE + " -> " + ChatColor.BLUE + secondAreaName + ChatColor.WHITE + ":");
+                sender.sendMessage("✄  Distance between " + ChatColor.BLUE + firstAreaName + ChatColor.WHITE + " -> " + ChatColor.BLUE + secondAreaName + ChatColor.WHITE + ":");
                 sender.sendMessage("x " + ChatColor.GREEN + Double.toString(xDiff));
                 sender.sendMessage("y " + ChatColor.GREEN + Double.toString(yDiff));
                 sender.sendMessage("z " + ChatColor.GREEN + Double.toString(zDiff));
@@ -219,10 +219,50 @@ public class Pride extends JavaPlugin {
             }
         });
 
+        getCommand("compass").setExecutor(new CommandExecutor() {
+            public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage(ChatColor.RED + "☹  Need to be a player to execute this command because it uses your compass");
+                    return false;
+                }
+
+                Player player = (Player) sender;
+                World world = player.getWorld();
+
+                if (args.length <= 0) {
+                    /*if (originalCompassLocation == null) {
+                        sender.sendMessage(ChatColor.RED + "☹  Need to give an area to point the compass towards");
+                        return false;
+                    } else {*/
+                    Location originalCompassLocation = world.getSpawnLocation​();
+                    player.setCompassTarget(originalCompassLocation);
+                    sender.sendMessage("➹  Compass reset to your world's original spawn!");
+                    return true;
+                }
+
+                String areaName = Pride.areaNameFromArgs(args);
+                HashMap saved = globalConfig.getConfigAreas(world);
+                if (saved == null) {
+                    sender.sendMessage(ChatColor.RED + "☹  Pride area not found");
+                    return false;
+                }
+
+                Location areaLocation = (Location)saved.get(areaName);
+                if (areaLocation == null) {
+                    sender.sendMessage("☹  Could not find an area called " + ChatColor.RED + areaName);
+                    return false;
+                }
+
+                sender.sendMessage("➹  Compass pointed to " + ChatColor.BLUE + areaName + ChatColor.WHITE + "!");
+                player.setCompassTarget(areaLocation);
+                return true;
+            }
+        });
+
         getCommand("pride").setExecutor(new CommandExecutor() {
             public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
                 if (!(sender instanceof Player)) {
-                    sender.sendMessage("Pride worlds:");
+                    sender.sendMessage("✿  Pride worlds:");
                     globalConfig.getConfigWorlds().forEach((k, v) -> {
                         sender.sendMessage(ChatColor.BLUE + k.toString() + ChatColor.WHITE + v.toString());
                     });
@@ -233,13 +273,13 @@ public class Pride extends JavaPlugin {
                     World world = player.getWorld();
                     HashMap saved = globalConfig.getConfigAreas(world);
                     if (saved == null) {
-                        sender.sendMessage(ChatColor.RED + "Pride area not found");
+                        sender.sendMessage(ChatColor.RED + "☹  Pride area not found");
                         return false;
                     }
 
                     Location playerLocation = player.getLocation();
 
-                    sender.sendMessage("Pride areas:");
+                    sender.sendMessage("✿  Pride areas:");
                     saved.forEach((k, v) -> {
                         String name = (String)k;
                         Location areaLocation = (Location)v;
