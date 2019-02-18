@@ -42,7 +42,17 @@ Pride will be open sourced at version 1.0!
 - Detect when entering a "Pride area" and send a message to the server
 - List, remove, and calculate distance from "Pride areas"
 
-#### Example config.yml
+## Playing
+
+- `/pride`
+- `/settle <name>`
+- `/abandon <name>`
+- `/far <name>`
+- `/here <optional:username>`
+- `/between <name_1>, <name_2>`
+- `/compass <optional:area>`
+
+### Example config.yml
 ```YAML
 initialized: true
 distance: 50
@@ -53,15 +63,6 @@ worlds:
     Cottage on the Cliff of the Icebergs: -910.49,74.00,-7357.35
     Chicken Farm: -705.96,67.00,-8065.75
 ```
-
-## Playing
-
-- `/settle <name>`
-- `/abandon <name>`
-- `/here <optional:username>`
-- `/far <name>`
-- `/pride`
-- `/between <name_1>, <name_2>`
 
 ## Building
 
@@ -75,16 +76,16 @@ Pride was not built using Eclipse or any other IDE. Although you can use one, th
 
 > NOTE: Make sure the Java version on your server and the Java version on the machine that builds Pride are the same, otherwise Bukkit/Spitgot will not allow it to run.
 
-### Building
+### Commands
 
-- `make plugin`
+#### `make plugin`
+- cleans `build/`
+- compiles the `plugin/` directory
+- builds a `.jar`
+- moves it into `server/plugins/` for use in the Spigot/Bukkit server
 
-> cleans `build/`, compiles the `plugin/` directory, builds a `.jar`, and moves it into `server/plugins/` for use in the Spigot/Bukkit server
-
-- `make server`
-
-> launches the server 
-
+#### `make server`
+- launches the server 
 
 ## Authors
 
