@@ -61,6 +61,7 @@ worlds:
 - `/here <optional:username>`
 - `/far <name>`
 - `/pride`
+- `/between <name_1>, <name_2>`
 
 ## Building
 
