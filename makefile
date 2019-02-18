@@ -1,3 +1,4 @@
+SHELL:=/bin/bash
 SOURCE_PATH=plugin
 BUILD_PATH=build
 SERVER_PATH=server
@@ -22,6 +23,7 @@ plugin:
 	# step 5 remove any existing plugin on the server in the server folder
 	-rm -r -f $(SERVER_PATH)/plugins/$(OUTPUT_NAME).jar
 	# step 6 copy the JAR file into the server to run it!
+	rm -r -f $(SERVER_PATH)/plugins/pride*.jar
 	cp -r $(BUILD_PATH)/$(OUTPUT_NAME).jar $(SERVER_PATH)/plugins/$(OUTPUT_NAME).jar
 
 .PHONY: server

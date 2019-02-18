@@ -61,9 +61,14 @@ public class PrideConfiguration {
                 UUID worldUID = UUID.fromString((String)worldUIDString);
                 World world = plugin.getServer().getWorld(worldUID);
                 for (String areaName : unparsedWorldAreas.keySet()) {
-                    String areaLocationString = (String)unparsedWorldAreas.get(areaName);
-                    Location locationFromString = transformStringToLocation(world, areaLocationString);
-                    parsedWorldAreas.put(areaName, locationFromString);
+                    ConfigurationSection areaDataSection = (ConfigurationSection) unparsedWorldAreas.get(areaName);
+                    String areaDataSectionPath = areaDataSection.getCurrentPath();
+                    Map<String, Object> areaDataMap = (Map<String, Object>) plugin.getConfig().getConfigurationSection(areaDataSectionPath).getValues(false);
+                    double x = (double)areaDataMap.get("x");
+                    double y = (double)areaDataMap.get("y");
+                    double z = (double)areaDataMap.get("z");
+                    Location locationFromData = new Location(world, x, y, z);
+                    parsedWorldAreas.put(areaName, locationFromData);
                 }
 
                 parsedWorlds.put(worldUID, parsedWorldAreas);
@@ -100,8 +105,12 @@ public class PrideConfiguration {
 
         HashMap encodedAreas = new HashMap();
         givenAreas.forEach((areaName, areaLocation) -> {
-            String stringFromLocation = transformLocationToString((Location)areaLocation);
-            encodedAreas.put(areaName, stringFromLocation);
+            HashMap areaData = new HashMap();
+            Location areaLocation2 = (Location)areaLocation;
+            areaData.put("x", areaLocation2.getX());
+            areaData.put("y", areaLocation2.getY());
+            areaData.put("z", areaLocation2.getZ());
+            encodedAreas.put(areaName, areaData);
         });
 
         String worldUIDString = world.getUID().toString();
