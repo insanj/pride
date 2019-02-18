@@ -179,24 +179,19 @@ public class Pride extends JavaPlugin {
                     return false;
                 }
 
-                Boolean foundComma = false;
-                String firstAreaName = "";
-                String secondAreaName = "";
+                String argString = "";
                 for (String arg : args) {
-                    if (arg.contains(",") == true) {
-                        String[] splitStrings = arg.split(",");
-                        firstAreaName += splitStrings[0];
-                        secondAreaName += splitStrings[splitStrings.length-1].trim();
-                        foundComma = true;
-                    } else if (foundComma == true) {
-                        secondAreaName += arg + " ";
-                    } else {
-                        firstAreaName += arg + " ";
-                    }
+                    argString += arg + " ";
                 }
 
-                firstAreaName = firstAreaName.trim();
-                secondAreaName = secondAreaName.trim();
+                String[] argSplit = argString.split(",");
+                if (argSplit.length != 2) {
+                    sender.sendMessage(ChatColor.RED + "Use a comma to separate the two Pride areas");
+                    return false;
+                }
+
+                String firstAreaName = argSplit[0].trim();
+                String secondAreaName = argSplit[1].trim();
 
                 Location firstAreaLocation = (Location)saved.get(firstAreaName);
                 if (firstAreaLocation == null) {
@@ -206,7 +201,7 @@ public class Pride extends JavaPlugin {
 
                 Location secondAreaLocation = (Location)saved.get(secondAreaName);
                 if (secondAreaLocation == null) {
-                    sender.sendMessage("Could not find both area: " + ChatColor.RED + secondAreaName);
+                    sender.sendMessage("Could not find area: " + ChatColor.RED + secondAreaName);
                     return false;
                 }
         
