@@ -1,6 +1,6 @@
 name: pride
 main: me.insanj.pride.Pride
-version: 0.3.6
+version: 0.3.7
 description: keep track of your playmates in minecraft
 commands:
   settle:
@@ -23,3 +23,7 @@ commands:
     description: Show the names of all the Pride areas and how far away they are
     usage: |
              /pride
+  between:
+    description: Calculate the distance between two pride areas (> 256 for Nether Portals)
+    usage: |
+             /between <name_one>,<name_two>

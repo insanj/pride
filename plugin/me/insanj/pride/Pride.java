@@ -159,6 +159,71 @@ public class Pride extends JavaPlugin {
             }
         });
 
+        getCommand("between").setExecutor(new CommandExecutor() {
+            public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+                if (args.length <= 0) {
+                    sender.sendMessage(ChatColor.RED + "Need to give area name in order to figure out how far you are from it");
+                    return false;
+                }
+
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage(ChatColor.RED + "Need to be a player to execute this command because it uses your world");
+                    return false;
+                }
+
+                Player player = (Player) sender;
+                World world = player.getWorld();
+                HashMap saved = globalConfig.getConfigAreas(world);
+                if (saved == null) {
+                    sender.sendMessage(ChatColor.RED + "Pride area not found");
+                    return false;
+                }
+
+                Boolean foundComma = false;
+                String firstAreaName = "";
+                String secondAreaName = "";
+                for (String arg : args) {
+                    if (arg.contains(",") == true) {
+                        String[] splitStrings = arg.split(",");
+                        firstAreaName += splitStrings[0];
+                        secondAreaName += splitStrings[splitStrings.length-1].trim();
+                        foundComma = true;
+                    } else if (foundComma == true) {
+                        secondAreaName += arg + " ";
+                    } else {
+                        firstAreaName += arg + " ";
+                    }
+                }
+
+                firstAreaName = firstAreaName.trim();
+                secondAreaName = secondAreaName.trim();
+
+                Location firstAreaLocation = (Location)saved.get(firstAreaName);
+                if (firstAreaLocation == null) {
+                    sender.sendMessage("Could not find area: " + ChatColor.RED + firstAreaName);
+                    return false;
+                }
+
+                Location secondAreaLocation = (Location)saved.get(secondAreaName);
+                if (secondAreaLocation == null) {
+                    sender.sendMessage("Could not find both area: " + ChatColor.RED + secondAreaName);
+                    return false;
+                }
+        
+                // 1 calcualte x
+                double xDiff = firstAreaLocation.getX() - secondAreaLocation.getX();
+                double zDiff = firstAreaLocation.getZ() - secondAreaLocation.getZ();
+                double yDiff = firstAreaLocation.getY() - secondAreaLocation.getY();
+        
+                sender.sendMessage("Distance between " + ChatColor.BLUE + firstAreaName + ChatColor.WHITE + " -> " + ChatColor.BLUE + secondAreaName + ChatColor.WHITE + ":");
+                sender.sendMessage("x " + ChatColor.GREEN + Double.toString(xDiff));
+                sender.sendMessage("y " + ChatColor.GREEN + Double.toString(yDiff));
+                sender.sendMessage("z " + ChatColor.GREEN + Double.toString(zDiff));
+
+                return true;
+            }
+        });
+
         getCommand("pride").setExecutor(new CommandExecutor() {
             public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
                 if (!(sender instanceof Player)) {
