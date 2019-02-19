@@ -34,13 +34,7 @@
 
 Pride is a lightweight Minecraft mod that helps everyone on a Bukkit/Spigot server keep track of each other. Although relatively simple in its design, Pride aims to be really useful and offer a nice supplement to the built-in navigation features of Minecraft.
 
-Pride will be open sourced at version 1.0!
-
-### 0.3.x Features
-
-- Create "Pride areas", which represent the area where you are located (by default 50 blocks large, but can be configured in the `config.yml`)
-- Detect when entering a "Pride area" and send a message to the server
-- List, remove, and calculate distance from "Pride areas"
+<h5 align="center">Pride will be open sourced at version 1.0!</h5>
 
 ## Playing
 
@@ -52,7 +46,24 @@ Pride will be open sourced at version 1.0!
 - `/between <name_1>, <name_2>`
 - `/compass <optional:area>`
 
-### Example config.yml
+## Changelog
+
+### 0.4.x Features
+
+- New YAML file format
+
+
+### 🐯 Use [tigon](https://github.com/insanj/tigon) to convert between 0.3.x and 0.4.x file formats!
+
+<iframe src="https://insanj.github.io/tigon/" height="400" width="550"></iframe>
+
+### 0.3.x Features
+
+- Create "Pride areas", which represent the area where you are located (by default 50 blocks large, but can be configured in the `config.yml`)
+- Detect when entering a "Pride area" and send a message to the server
+- List, remove, and calculate distance from "Pride areas"
+
+### 0.3.x config.yml
 ```YAML
 initialized: true
 distance: 50
