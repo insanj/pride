@@ -36,6 +36,15 @@ Pride is a lightweight Minecraft mod that helps everyone on a Bukkit/Spigot serv
 
 Pride will be open sourced at version 1.0!
 
+### 0.4.x Features
+
+- New YAML file format
+
+
+### 🐯 Use [tigon](https://github.com/insanj/tigon) to convert between 0.3.x and 0.4.x file formats!
+
+<iframe src="https://insanj.github.io/tigon/"></iframe>
+
 ### 0.3.x Features
 
 - Create "Pride areas", which represent the area where you are located (by default 50 blocks large, but can be configured in the `config.yml`)
