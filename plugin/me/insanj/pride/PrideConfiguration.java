@@ -64,16 +64,30 @@ public class PrideConfiguration {
                     ConfigurationSection areaDataSection = (ConfigurationSection) unparsedWorldAreas.get(areaName);
                     String areaDataSectionPath = areaDataSection.getCurrentPath();
                     Map<String, Object> areaDataMap = (Map<String, Object>) plugin.getConfig().getConfigurationSection(areaDataSectionPath).getValues(false);
-                    Object xObj = areaDataMap.get("x");
-                    double x = xObj instanceof Integer ? Double.parseDouble(xObj) : (double)xObj;
-
-                    Object yObj = areaDataMap.get("y");
-                    double y = yObj instanceof Integer ? Double.parseDouble(yObj) : (double)yObj;
-
-                    Object zObj = areaDataMap.get("z");
-                    double z = zObj instanceof Integer ? Double.parseDouble(zObj) : (double)zObj;
                     
-                    Location locationFromData = new Location(world, x, y, z);
+                    Object xObj = areaDataMap.get("x");
+                    Object yObj = areaDataMap.get("y");
+                    Object zObj = areaDataMap.get("z");
+                    Double x, y, z;
+                    if (xObj instanceof Integer) {
+                        x = new Double((Integer)xObj);
+                    } else {
+                        x = (Double)xObj;
+                    }
+
+                    if (yObj instanceof Integer) {
+                        y = new Double((Integer)yObj);
+                    } else {
+                        y = (Double)yObj;
+                    }
+
+                    if (zObj instanceof Integer) {
+                        z = new Double((Integer)zObj);
+                    } else {
+                        z = (Double)zObj;
+                    }
+
+                    Location locationFromData = new Location(world, (double)x, (double)y, (double)z);
                     parsedWorldAreas.put(areaName, locationFromData);
                 }
 
