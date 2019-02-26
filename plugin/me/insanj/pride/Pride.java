@@ -231,10 +231,6 @@ public class Pride extends JavaPlugin {
                 World world = player.getWorld();
 
                 if (args.length <= 0) {
-                    /*if (originalCompassLocation == null) {
-                        sender.sendMessage(ChatColor.RED + "☹  Need to give an area to point the compass towards");
-                        return false;
-                    } else {*/
                     Location originalCompassLocation = world.getSpawnLocation​();
                     player.setCompassTarget(originalCompassLocation);
                     sender.sendMessage("➹  Compass reset to your world's original spawn!");
@@ -254,8 +250,8 @@ public class Pride extends JavaPlugin {
                     return false;
                 }
 
-                sender.sendMessage("➹  Compass pointed to " + ChatColor.BLUE + areaName + ChatColor.WHITE + "!");
                 player.setCompassTarget(areaLocation);
+                sender.sendMessage("➹  Compass pointed to " + ChatColor.BLUE + areaName + ChatColor.WHITE + "!");
                 return true;
             }
         });
@@ -271,9 +267,6 @@ public class Pride extends JavaPlugin {
 
                 else {
                     Player player = (Player) sender;
-
-                    ItemMessage im = new ItemMessage(globalPlugin);
-                    im.sendMessage(player, "Hello World!", 5);
 
                     World world = player.getWorld();
                     HashMap saved = globalConfig.getConfigAreas(world);
@@ -294,6 +287,35 @@ public class Pride extends JavaPlugin {
                         String diffString = String.format("%.2f", totalDiff);
                         sender.sendMessage(ChatColor.BLUE + name + ChatColor.WHITE +  " " + diffString + " blocks away");
                     });
+                }
+
+                return true;
+            }
+        });
+
+        getCommand("north").setExecutor(new CommandExecutor() {
+            public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage(ChatColor.RED + "☹  Need to be a player to execute this command because it uses your compass");
+                    return false;
+                }
+
+                else {
+                    Player player = (Player) sender;
+                    World world = player.getWorld();
+    
+                    if (args.length > 0) {
+                        Location originalCompassLocation = world.getSpawnLocation​();
+                        player.setCompassTarget(originalCompassLocation);
+                        sender.sendMessage("➹  Compass reset to your world's original spawn!");
+                        return true;
+                    }
+
+                    Location location = player.getLocation();
+                    Location northLocation = new Location(world, location.getX(), location.getY(), location.getZ() * -999.0);
+                    player.setCompassTarget(northLocation);
+
+                    sender.sendMessage("➹  Compass pointed " + ChatColor.RED + " true north " + ChatColor.WHITE + " based on your current location!");
                 }
 
                 return true;
