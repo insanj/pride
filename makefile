@@ -14,6 +14,8 @@ plugin:
 	# step 1 clean up / erase old version
 	-rm -r -f $(BUILD_PATH)
 	mkdir $(BUILD_PATH) && mkdir $(BUILD_PATH)/bin
+	# step 1.5 move all external files to same dir
+	# cp $(SERVER_PATH)/$(BUKKIT_JAR_FILENAME) $(EXTERNAL_PATH)/
 	# step 2 compile the plugin into the bin dir
 	javac -cp $(SERVER_PATH)/$(BUKKIT_JAR_FILENAME) -d $(BUILD_PATH)/bin $(SOURCE_PATH)/me/insanj/pride/*.java
 	# step 3 copy config .yml to a new "build in progress" directory

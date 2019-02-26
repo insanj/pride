@@ -20,6 +20,7 @@ public class Pride extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        Pride globalPlugin = this;
         PrideConfiguration globalConfig = config;
         PridePlayerListener globalPlayerListener = playerListener;
 
@@ -270,6 +271,10 @@ public class Pride extends JavaPlugin {
 
                 else {
                     Player player = (Player) sender;
+
+                    ItemMessage im = new ItemMessage(globalPlugin);
+                    im.sendMessage(player, "Hello World!", 5);
+
                     World world = player.getWorld();
                     HashMap saved = globalConfig.getConfigAreas(world);
                     if (saved == null) {
