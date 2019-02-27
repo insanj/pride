@@ -32,3 +32,7 @@ plugin:
 server:
 	# step 7 run the server!
 	cd $(SERVER_PATH) && java -Xms1G -Xmx1G -jar -DIReallyKnowWhatIAmDoingISwear $(BUKKIT_JAR_FILENAME)
+
+.PHONY: webapp
+webapp:
+	cd webapp && npm start
