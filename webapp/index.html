@@ -52,9 +52,18 @@
             let colString = '';
             for (let ele of elements) {
                 let rowString = '<tr>';
+                let i = 0;
                 for (let sub of ele) {
-                    rowString += '<td>' + sub + '</td>';
+                    if (i == 0) {
+                        let filename = ele[0].replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                        let uploadFormString = "<form ref='uploadForm' id='pride-upload' action='/upload' method='post' encType='multipart/form-data'> <input type='file' name='sampleFile' /> <input type='submit' value='🎨' /></form>";
+                        rowString += '<th scope="row">' + sub + uploadFormString + '</th>';
+                    } else {
+                        rowString += '<td>' + sub + '</td>';
+                    }
+                    i++;
                 }
+
                 rowString += '</tr>';
                 colString += rowString;
             }
@@ -114,7 +123,7 @@
 
             // Loop through all table rows, and hide those who don't match the search query
             for (i = 0; i < tr.length; i++) {
-                td = tr[i].getElementsByTagName("td")[0];
+                td = tr[i].getElementsByTagName("th")[0];
                 if (td) {
                 txtValue = td.textContent || td.innerText;
                 if (txtValue.toUpperCase().indexOf(filter) > -1) {
