@@ -20,7 +20,7 @@
         </a>
 
         <form class="form-inline">
-            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" id="pride-search" onkeyup="pride_searchOnKeyUp()">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" id="pride-search" onreset="pride_searchOnKeyUp()" oninput="pride_searchOnKeyUp()">
         </form>
     </nav>
 
@@ -56,8 +56,9 @@
                 for (let sub of ele) {
                     if (i == 0) {
                         let filename = ele[0].replace(/[^a-z0-9]/gi, '_').toLowerCase();
-                        let uploadFormString = "<form class='collapse' id='collapse-form' ref='uploadForm' id='pride-upload' action='/upload' method='post' encType='multipart/form-data'> <input type='file' name='sampleFile' /> <input type='submit' value='Upload' /></form>";
-                        rowString += '<th scope="row">' + sub + uploadFormString + '</th>';
+                        let uploadFormString = "<form class='collapse' id='collapse-form' ref='uploadForm' id='pride-upload' action='/upload/" + filename + "' method='post' encType='multipart/form-data'> <input type='file' name='sampleFile' /> <input type='submit' value='Upload' /></form>";
+                        let artworkString = "<img style='display: block;' class='pride-artwork rounded' src='/artwork/" + filename + "' height='320' width='auto' onerror='this.style.display=\"none\"' />";
+                        rowString += '<th scope="row">' + sub + uploadFormString + artworkString + '</th>';
                     } else {
                         rowString += '<td>' + sub + '</td>';
                     }
@@ -111,6 +112,12 @@
 
         $(function() {
             pride_runtime();
+            pride_searchOnKeyUp(); // just to make sure any lingering input is used on load
+
+            /*$(document).on("submit", "#collapse-form", function(event) { 
+                const originalSource = $(".pride-artwork").attr('src');
+                $(".pride-artwork").attr("src", originalSource + "?" + (new Date()).getTime()); // force reload images
+            });*/
         });
 
         function pride_searchOnKeyUp() {
