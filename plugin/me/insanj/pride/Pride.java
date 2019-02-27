@@ -1,6 +1,7 @@
 package me.insanj.pride;
 
 import java.util.HashMap;
+import java.lang.Math;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -312,7 +313,7 @@ public class Pride extends JavaPlugin {
                     }
 
                     Location location = player.getLocation();
-                    Location northLocation = new Location(world, location.getX(), location.getY(), location.getZ() * -999.0);
+                    Location northLocation = new Location(world, location.getX(), location.getY(), Math.abs(location.getZ()) * -999.0);
                     player.setCompassTarget(northLocation);
 
                     sender.sendMessage("➹  Compass pointed " + ChatColor.RED + " true north " + ChatColor.WHITE + " based on your current location!");
