@@ -257,7 +257,7 @@ public class Pride extends JavaPlugin {
             }
         });
 
-        getCommand("pride").setExecutor(new CommandExecutor() {
+        getCommand("areas").setExecutor(new CommandExecutor() {
             public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
                 if (!(sender instanceof Player)) {
                     sender.sendMessage("✿  Pride worlds:");

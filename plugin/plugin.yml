@@ -23,11 +23,11 @@ commands:
     usage: |
              Calculate how far away you are from a Pride area
              /far <name>
-  pride:
+  areas:
     description: Show the names of all the Pride areas and how far away they are
     usage: |
              Show the names of all the Pride areas and how far away they are
-             /pride
+             /areas
   between:
     description: Calculate the distance between two pride areas (> 256 for Nether Portals)
     usage: |
