@@ -9,9 +9,11 @@ const PromiseFtp = require('promise-ftp')
 const fs = require('fs')
 require('dotenv').config()
 const fileUpload = require('express-fileupload');
+const JsonDB = require('node-json-db');
 
 // core vars
 const app = express()
+const db = new JsonDB("pride-webapp-artwork", true, false);
 const port = 3000
 const ftpConfig = {
     host: process.env.host, user: process.env.user, password: process.env.password
@@ -45,10 +47,11 @@ app.get("/download", (req, res) => {
 // -- upload API
 // default options
 app.use(fileUpload());
-app.post('/upload', function(req, res) {
+
+app.post('/upload/:areaName', function(req, res) { 
     let sampleFile;
     let uploadPath;
-  
+
     if (Object.keys(req.files).length == 0) {
       res.status(400).send('No files were uploaded.');
       return;
@@ -59,7 +62,8 @@ app.post('/upload', function(req, res) {
     sampleFile = req.files.sampleFile;
   
     uploadPath = __dirname + '/static/' + sampleFile.name;
-  
+    db.push("/" + req.params.areaName, uploadPath);
+
     sampleFile.mv(uploadPath, function(err) {
       if (err) {
         return res.status(500).send(err);
@@ -67,6 +71,21 @@ app.post('/upload', function(req, res) {
   
       res.send('File uploaded to ' + uploadPath);
     });
-  });
+});
+
+app.get('/artwork/:areaName', function(req, res) { 
+    try {
+        const response = db.getData("/" + req.params.areaName);
+        if (response != null) {
+            res.status(200).sendFile(response);
+            return;
+        }
+    } catch (e) {
+        // console.log(e);
+    }
+    
+    res.status(200).send("");
+});
+
 // engage!
 app.listen(port, () => console.log(`pride webapp live @ ${port} with config ${JSON.stringify(ftpConfig)}`))
