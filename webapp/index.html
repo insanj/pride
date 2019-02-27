@@ -8,7 +8,7 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     
-    <link rel="shortcut icon" type="image/png" href="static/server-icon.png"/>
+    <link rel="shortcut icon" type="image/png" href="server-icon.png"/>
     <title>pride webapp</title>
   </head>
   <body>
@@ -41,7 +41,7 @@
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-    
+    <script type="text/javascript" src="yaml.min.js"></script>
     <script>        
         // expects param of format: [[column value 1, column value 2], [column value 1], ...]
         function pride_generateTableBodyString(elements) {
@@ -60,7 +60,7 @@
 
         function pride_convertPrideResponseToTableBodyElements(response) {
             let elements = [];
-            let worlds = JSON.parse(response).worlds;
+            let worlds = response.worlds;
             for (let worldUID in worlds) {
                 let worldDict = worlds[worldUID];
                 for (let areaName in worldDict) {
@@ -68,10 +68,16 @@
                     elements.push([areaName, areaData.x, areaData.y, areaData.z]);
                 }
             }
-            return elements;
+            return elements.sort((a, b) => {
+                return a[0].toUpperCase().localeCompare(b[0].toUpperCase());
+            });
         }
 
-        async function pride_downloadPrideAreas() {
+        function pride_convertPrideResponseToJSON(response) {
+            return YAML.parse(response);
+        }
+
+        async function pride_downloadPrideResponse() {
             return await new Promise((resolve, reject) => {
                 $.ajax({
                     url: "/download",
@@ -83,8 +89,9 @@
         }
 
         async function pride_runtime() {
-            const response = await pride_downloadPrideAreas();
-            const elements = pride_convertPrideResponseToTableBodyElements(response);
+            const response = await pride_downloadPrideResponse();
+            const responseJSON = pride_convertPrideResponseToJSON(response);
+            const elements = pride_convertPrideResponseToTableBodyElements(responseJSON);
             const string = pride_generateTableBodyString(elements);
             $("#pride-table").append(string);
         }
