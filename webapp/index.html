@@ -28,7 +28,7 @@
         <table class="table table-dark bg-dark" id="pride-table">
                 <thead>
                     <tr>
-                    <th scope="col">Area Name</th>
+                    <th scope="col">Area Name <a class='m=2' data-toggle='collapse' href='#collapse-form' aria-controls='collapse-form'>🎨</a></th>
                     <th scope="col">X</th>
                     <th scope="col">Y</th>
                     <th scope="col">Z</th>
@@ -56,7 +56,7 @@
                 for (let sub of ele) {
                     if (i == 0) {
                         let filename = ele[0].replace(/[^a-z0-9]/gi, '_').toLowerCase();
-                        let uploadFormString = "<form ref='uploadForm' id='pride-upload' action='/upload' method='post' encType='multipart/form-data'> <input type='file' name='sampleFile' /> <input type='submit' value='🎨' /></form>";
+                        let uploadFormString = "<form class='collapse' id='collapse-form' ref='uploadForm' id='pride-upload' action='/upload' method='post' encType='multipart/form-data'> <input type='file' name='sampleFile' /> <input type='submit' value='Upload' /></form>";
                         rowString += '<th scope="row">' + sub + uploadFormString + '</th>';
                     } else {
                         rowString += '<td>' + sub + '</td>';
