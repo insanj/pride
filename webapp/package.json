@@ -10,7 +10,6 @@
   "author": "insanj",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.16.4",
-    "yamljs": "^0.3.0"
+    "express": "^4.16.4"
   }
 }
