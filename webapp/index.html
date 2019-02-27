@@ -13,15 +13,19 @@
   </head>
   <body>
     <!-- Image and text -->
-    <nav class="navbar navbar-light bg-light">
+    <nav class="navbar navbar-dark bg-dark">
         <a class="navbar-brand" href="#">
         <img src="server-icon.png" width="30" height="30" class="d-inline-block align-top" alt="">
         pride webapp
         </a>
+
+        <form class="form-inline">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" id="pride-search" onkeyup="pride_searchOnKeyUp()">
+        </form>
     </nav>
 
     <div id="pride-container">
-        <table class="table">
+        <table class="table table-dark bg-dark" id="pride-table">
                 <thead>
                     <tr>
                     <th scope="col">Area Name</th>
@@ -30,7 +34,7 @@
                     <th scope="col">Z</th>
                     </tr>
                 </thead>
-                <tbody id="pride-table">
+                <tbody id="pride-table-body">
 
                 </tbody>
         </table>
@@ -93,12 +97,34 @@
             const responseJSON = pride_convertPrideResponseToJSON(response);
             const elements = pride_convertPrideResponseToTableBodyElements(responseJSON);
             const string = pride_generateTableBodyString(elements);
-            $("#pride-table").append(string);
+            $("#pride-table-body").append(string);
         }
 
         $(function() {
             pride_runtime();
         });
+
+        function pride_searchOnKeyUp() {
+            // Declare variables 
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("pride-search");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("pride-table");
+            tr = table.getElementsByTagName("tr");
+
+            // Loop through all table rows, and hide those who don't match the search query
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+                } 
+            }
+        }
     </script>
 
 </body>
