@@ -25,6 +25,8 @@ public class Pride extends JavaPlugin {
         PrideConfiguration globalConfig = config;
         PridePlayerListener globalPlayerListener = playerListener;
 
+        getCommand("areas").setExecutor(new PrideAreasCommandExecutor(config));
+
         getCommand("settle").setExecutor(new CommandExecutor() {
             public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
                 if (args.length <= 0) {
@@ -257,42 +259,6 @@ public class Pride extends JavaPlugin {
             }
         });
 
-        getCommand("areas").setExecutor(new CommandExecutor() {
-            public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-                if (!(sender instanceof Player)) {
-                    sender.sendMessage("✿  Pride worlds:");
-                    globalConfig.getConfigWorlds().forEach((k, v) -> {
-                        sender.sendMessage(ChatColor.BLUE + k.toString() + ChatColor.WHITE + v.toString());
-                    });
-                }
-
-                else {
-                    Player player = (Player) sender;
-
-                    World world = player.getWorld();
-                    HashMap saved = globalConfig.getConfigAreas(world);
-                    if (saved == null) {
-                        sender.sendMessage(ChatColor.RED + "☹  Pride area not found");
-                        return false;
-                    }
-
-                    Location playerLocation = player.getLocation();
-
-                    sender.sendMessage("✿  Pride areas:");
-                    saved.forEach((k, v) -> {
-                        String name = (String)k;
-                        Location areaLocation = (Location)v;
-                        double xDiff = Math.abs(areaLocation.getX() - playerLocation.getX());
-                        double zDiff = Math.abs(areaLocation.getZ() - playerLocation.getZ());
-                        double totalDiff = xDiff + zDiff;
-                        String diffString = String.format("%.2f", totalDiff);
-                        sender.sendMessage(ChatColor.BLUE + name + ChatColor.WHITE +  " " + diffString + " blocks away");
-                    });
-                }
-
-                return true;
-            }
-        });
 
         getCommand("north").setExecutor(new CommandExecutor() {
             public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
