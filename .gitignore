@@ -4,6 +4,7 @@ logs/
 world/
 world_nether/
 world_the_end/
+static/*.png
 
 # Compiled class file
 *.class
