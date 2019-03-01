@@ -11,7 +11,7 @@
     <link rel="shortcut icon" type="image/png" href="server-icon.png"/>
     <title>pride webapp</title>
   </head>
-  <body>
+  <body class="bg-dark">
     <!-- Image and text -->
     <nav class="navbar navbar-dark bg-dark">
         <a class="navbar-brand" href="#">
@@ -24,11 +24,20 @@
         </form>
     </nav>
 
+    <div class="container-fluid bg-dark">
+        <div class="btn-toolbar mb-2" role="toolbar" aria-label="">
+            <div class="btn-group mr-2" role="group" aria-label="First group">
+                <button type="button" id="pride-names-button" class="btn btn-secondary">Names</button>
+                <button type="button" id="pride-gallery-button" class="btn btn-outline-secondary">Gallery</button>
+            </div>
+        </div>
+    </div>
+
     <div id="pride-container">
         <table class="table table-dark bg-dark" id="pride-table">
                 <thead>
                     <tr>
-                    <th scope="col">Area Name <a class='m=2' data-toggle='collapse' href='#collapse-form' aria-controls='collapse-form'>🎨</a></th>
+                    <th scope="col">Area Name</th>
                     <th scope="col">X</th>
                     <th scope="col">Y</th>
                     <th scope="col">Z</th>
@@ -56,9 +65,8 @@
                 for (let sub of ele) {
                     if (i == 0) {
                         let filename = ele[0].replace(/[^a-z0-9]/gi, '_').toLowerCase();
-                        let uploadFormString = "<form class='collapse' id='collapse-form' ref='uploadForm' id='pride-upload' action='/upload/" + filename + "' method='post' encType='multipart/form-data'> <input type='file' name='sampleFile' /> <input type='submit' value='Upload' /></form>";
-                        let artworkString = "<img style='display: block;' class='pride-artwork rounded' src='/artwork/" + filename + "' height='320' width='auto' onerror='this.style.display=\"none\"' />";
-                        rowString += '<th scope="row">' + sub + uploadFormString + artworkString + '</th>';
+                        
+                        rowString += '<th id="' + filename + '" scope="row">' + sub + '</th>';
                     } else {
                         rowString += '<td>' + sub + '</td>';
                     }
@@ -108,16 +116,34 @@
             const elements = pride_convertPrideResponseToTableBodyElements(responseJSON);
             const string = pride_generateTableBodyString(elements);
             $("#pride-table-body").append(string);
+            return string;
         }
 
-        $(function() {
-            pride_runtime();
-            pride_searchOnKeyUp(); // just to make sure any lingering input is used on load
+        function pride_generateGallerySection(htmlContents) {
+            var regex = /<th id="([^"]+)" scope="row">([^"]+)<\/th>/g;
+            return htmlContents.replace(regex, function($0, $1, $2, $3) {
+                let filename = $1;
+                let areaName = $2;
+                let uploadFormString = "<form class='' id='collapse-form' ref='uploadForm' id='pride-upload' action='/upload/" + filename + "' method='post' encType='multipart/form-data'> <input type='file' name='sampleFile' /> <input type='submit' value='Upload' /></form>";
+                let artworkString = "<img style='display: block;' class='pride-artwork rounded' src='/artwork/" + filename + "' height='320' width='auto' onerror='this.style.display=\"none\"' />";
+                let replacement = '<th id="' + filename + '" scope="row">' + areaName + artworkString + uploadFormString + '</th>';
+                return replacement;
+            });
+        }
 
-            /*$(document).on("submit", "#collapse-form", function(event) { 
-                const originalSource = $(".pride-artwork").attr('src');
-                $(".pride-artwork").attr("src", originalSource + "?" + (new Date()).getTime()); // force reload images
-            });*/
+        var pride_namesSectionContents;
+        var pride_gallerySectionContents;
+
+        $(function() {
+
+            pride_runtime().then(htmlContents => {
+                pride_namesSectionContents = htmlContents;
+                pride_gallerySectionContents = pride_generateGallerySection(htmlContents);
+                pride_searchOnKeyUp(); // just to make sure any lingering input is used on load
+                prideSetupSections();
+            }).catch(e => {
+                console.log(e);
+            });
         });
 
         function pride_searchOnKeyUp() {
@@ -132,14 +158,54 @@
             for (i = 0; i < tr.length; i++) {
                 td = tr[i].getElementsByTagName("th")[0];
                 if (td) {
-                txtValue = td.textContent || td.innerText;
-                if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                    tr[i].style.display = "";
-                } else {
-                    tr[i].style.display = "none";
-                }
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
                 } 
             }
+        }
+
+        function prideSetupSections() {
+            /*$(document).on("submit", "#collapse-form", function(event) { 
+                const originalSource = $(".pride-artwork").attr('src');
+                $(".pride-artwork").attr("src", originalSource + "?" + (new Date()).getTime()); // force reload images
+            });*/
+
+            // click listeners
+            function prideToggleSection(sectionName) {
+                if (sectionName === 'names') {
+                    $("#pride-names-button").removeClass("btn-outline-secondary"); 
+                    $("#pride-names-button").addClass("btn-secondary"); 
+                    $("#pride-names-button").prop("disabled", true); 
+
+                    $("#pride-gallery-button").removeClass("btn-secondary"); 
+                    $("#pride-gallery-button").addClass("btn-outline-secondary"); 
+                    $("#pride-gallery-button").prop("disabled", false); 
+
+                    $("#pride-table-body").html(pride_namesSectionContents);
+                } else if (sectionName === 'gallery') {
+                    $("#pride-names-button").removeClass("btn-secondary"); 
+                    $("#pride-names-button").addClass("btn-outline-secondary"); 
+                    $("#pride-names-button").prop("disabled", false); 
+
+                    $("#pride-gallery-button").removeClass("btn-outline-secondary"); 
+                    $("#pride-gallery-button").addClass("btn-secondary"); 
+                    $("#pride-gallery-button").prop("disabled", true);
+                    
+                    $("#pride-table-body").html(pride_gallerySectionContents);
+                }
+            }
+
+            $(document).on("click", "#pride-names-button", function(event) {
+                prideToggleSection('names');
+            });
+
+            $(document).on("click", "#pride-gallery-button", function(event) {
+                prideToggleSection('gallery');
+            });
         }
     </script>
 
