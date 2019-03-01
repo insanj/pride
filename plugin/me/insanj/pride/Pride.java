@@ -1,10 +1,13 @@
 package me.insanj.pride;
 
+import java.util.Date;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.lang.Math;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.NamespacedKey;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -14,6 +17,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.CommandExecutor;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.Material;
+import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.ShapedRecipe;
+
 
 public class Pride extends JavaPlugin {
     private final PrideConfiguration config = new PrideConfiguration(this);
@@ -291,6 +300,33 @@ public class Pride extends JavaPlugin {
 
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(playerListener, this);
+
+        registerPrideRecipe();
+    }
+
+    public void registerPrideRecipe() {
+        ItemStack book = new ItemStack(Material.WRITTEN_BOOK, 1);
+        BookMeta bm = (BookMeta)book.getItemMeta();
+        bm.setAuthor("Pride");
+        bm.setTitle("Areas " + new Date().toString());
+
+        ArrayList<String> pages = new ArrayList<String>();
+        this.config.getConfigWorlds().forEach((k, v) -> {
+            pages.add("World " + ChatColor.BLUE + k.toString() + "\n" + ChatColor.BLACK + "Areas: " + ChatColor.GREEN + v.toString());
+        });
+
+        bm.setPages(pages);
+        book.setItemMeta(bm);
+
+        ItemMeta meta = book.getItemMeta();
+        meta.setDisplayName(ChatColor.GREEN + "Pride Book");
+        book.setItemMeta(meta);
+
+        NamespacedKey key = new NamespacedKey(this, "pride");
+        ShapedRecipe recipe = new ShapedRecipe(key, book);
+        recipe.shape("S");
+        recipe.setIngredient('S', Material.ACACIA_SAPLING);
+        Bukkit.addRecipe(recipe);
     }
 
     static String areaNameFromArgs(String[] args) {
