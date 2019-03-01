@@ -1,7 +1,6 @@
 <h1 align="center">pride</h1>
 <h3 align="center">🦁  keep track of your playmates in minecraft</h3>
 
-
 <p align="center">
   <a href="https://jdk.java.net/">
     <img src="https://img.shields.io/badge/java-10.0.2-red.svg" />
@@ -16,13 +15,19 @@
   </a>
 </p>
 
-<p align="center">
-    Pride is a suite of lightweight Minecraft tools for Spigot/Bukkit servers. The core mod, `pride.jar`, helps players keep track of each other without the use of any dependancies. Although relatively simple in its design, this plugin aims to be really useful and offer a nice supplement to the built-in navigation features of Minecraft.
-</p>
+---
 
-In addition to `pride.jar`, it is highly recommended that server runners use the Pride webapp, which allows for easy management of all features of Pride, and some added bonuses -- such as adding multiple screenshots to create a blog-like website which can be easily saved and exported to external publishing.
+Pride is a suite of lightweight Minecraft tools for Spigot/Bukkit servers. The core mod, `pride.jar`, helps players keep track of each other without the use of any dependancies. Although relatively simple in its design, this plugin aims to be really useful and offer a nice supplement to the built-in navigation features of Minecraft.
+
+<br/>
+
+ In addition to `pride.jar`, it is highly recommended that server runners use the Pride webapp, which allows for easy management of all features of Pride, and some added bonuses -- such as adding multiple screenshots to create a blog-like website which can be easily saved and exported to external publishing.
+
+<br/>
 
 Finally, some legacy users of Pride will need to convert from the old YAML string format to the new YAML dynamic format, a transition that occured in the first `0.4.0` version. This format is essential for powering the webapp and all `0.4.x` and beyond features. To convert from the old format to the new format, use 🐯 [tigon](#-use-tigon-to-convert-between-03x-and-04x-file-formats) by copy and pasting your `config.yml`.
+
+---
 
 ## Playing
 
@@ -35,12 +40,26 @@ Finally, some legacy users of Pride will need to convert from the old YAML strin
 - `/compass <optional:area>`
 - `/north`
 
+## Webapp
+
+Pride is most useful when paired with its simple webapp, designed to be ran locally on your computer.
+
+If your server can be accessed with FTP, drop the `host`, `user`, and `password` in a `.env` file in the root `/webapp` directory. 
+
+When launched using `npm start` (make sure to run `npm install` beforehand), the webapp will download the `/plugins/pride/config.yml` automatically and use it along with its own local JSON file to power the website.
+
+![](webapp.png)
+
+---
+
 ## Changelog
 
 ### 0.4.x Features
 
+- `/north` command to point your compass to the NORTH direction
+- `/areas <page_number>` instead of `/pride`, includes pagintion to fix message spam
 - New YAML file format
-
+- New Webapp which can connect to the YAML file (doesn't require server to be running)
 
 ### 🐯 Use [tigon](https://github.com/insanj/tigon) to convert between 0.3.x and 0.4.x file formats!
 
@@ -64,17 +83,6 @@ worlds:
     Chicken Farm: -705.96,67.00,-8065.75
 ```
 
-## Webapp
-
-Pride is most useful when paired with its simple webapp, designed to be ran locally on your computer.
-
-If your server can be accessed with FTP, drop the `host`, `user`, and `password` in a `.env` file in the root `/webapp` directory. 
-
-When launched using `npm start` (make sure to run `npm install` beforehand), the webapp will download the `/plugins/pride/config.yml` automatically and use it along with its own local JSON file to power the website.
-
-![](webapp.png)
-
-
 ## Building
 
 Pride was not built using Eclipse or any other IDE. Although you can use one, the instructions below are for building and running this plugin with only the command line and a few easy to understand tools.
@@ -97,6 +105,8 @@ Pride was not built using Eclipse or any other IDE. Although you can use one, th
 
 #### `make server`
 - launches the server 
+
+---
 
 ## Authors
 
