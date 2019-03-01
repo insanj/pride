@@ -6,16 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="/external/bootstrap.min.css" >
     
-    <link rel="shortcut icon" type="image/png" href="server-icon.png"/>
+    <link rel="shortcut icon" type="image/png" href="/static/server-icon.png"/>
     <title>pride webapp</title>
   </head>
   <body class="bg-dark">
     <!-- Image and text -->
     <nav class="navbar navbar-dark bg-dark">
         <a class="navbar-brand" href="#">
-        <img src="server-icon.png" width="30" height="30" class="d-inline-block align-top" alt="">
+        <img src="/static/server-icon.png" width="30" height="30" class="d-inline-block align-top" alt="">
         pride webapp
         </a>
 
@@ -51,65 +51,20 @@
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-    <script type="text/javascript" src="yaml.min.js"></script>
-    <script>        
-        // expects param of format: [[column value 1, column value 2], [column value 1], ...]
-        function pride_generateTableBodyString(elements) {
-            let colString = '';
-            for (let ele of elements) {
-                let rowString = '<tr>';
-                let i = 0;
-                for (let sub of ele) {
-                    if (i == 0) {
-                        let filename = ele[0].replace(/[^a-z0-9]/gi, '_').toLowerCase();
-                        
-                        rowString += '<th id="' + filename + '" scope="row">' + sub + '</th>';
-                    } else {
-                        rowString += '<td>' + sub + '</td>';
-                    }
-                    i++;
-                }
+    <script src="/external/jquery-3.3.1.min.js"></script>
+    <script src="/external/popper.min.js"></script>
+    <script src="/external/bootstrap.min.js"></script>
 
-                rowString += '</tr>';
-                colString += rowString;
-            }
+    <script type="text/javascript" src="/external/yaml.min.js"></script>
 
-            return colString;
-        }
+    <script type="text/javascript" src="/scripts/pride_frontend.js"></script>
+    <script type="text/javascript" src="/scripts/pride_backend.js"></script>
+    <script type="text/javascript" src="/scripts/pride_interactions.js"></script>
 
-        function pride_convertPrideResponseToTableBodyElements(response) {
-            let elements = [];
-            let worlds = response.worlds;
-            for (let worldUID in worlds) {
-                let worldDict = worlds[worldUID];
-                for (let areaName in worldDict) {
-                    let areaData = worldDict[areaName];
-                    elements.push([areaName, areaData.x, areaData.y, areaData.z]);
-                }
-            }
-            return elements.sort((a, b) => {
-                return a[0].toUpperCase().localeCompare(b[0].toUpperCase());
-            });
-        }
-
-        function pride_convertPrideResponseToJSON(response) {
-            return YAML.parse(response);
-        }
-
-        async function pride_downloadPrideResponse() {
-            return await new Promise((resolve, reject) => {
-                $.ajax({
-                    url: "/download",
-                    success: resolve,
-                    error: reject,
-                    dataType: "text"
-                });
-            })
-        }
-
+    <script>       
+        var pride_namesSectionContents;
+        var pride_gallerySectionContents;
+ 
         async function pride_runtime() {
             const response = await pride_downloadPrideResponse();
             const responseJSON = pride_convertPrideResponseToJSON(response);
@@ -119,23 +74,7 @@
             return string;
         }
 
-        function pride_generateGallerySection(htmlContents) {
-            var regex = /<th id="([^"]+)" scope="row">([^"]+)<\/th>/g;
-            return htmlContents.replace(regex, function($0, $1, $2, $3) {
-                let filename = $1;
-                let areaName = $2;
-                let uploadFormString = "<form class='' id='collapse-form' ref='uploadForm' id='pride-upload' action='/upload/" + filename + "' method='post' encType='multipart/form-data'> <input type='file' name='sampleFile' /> <input type='submit' value='Upload' /></form>";
-                let artworkString = "<img style='display: block;' class='pride-artwork rounded' src='/artwork/" + filename + "' height='320' width='auto' onerror='this.style.display=\"none\"' />";
-                let replacement = '<th id="' + filename + '" scope="row">' + areaName + artworkString + uploadFormString + '</th>';
-                return replacement;
-            });
-        }
-
-        var pride_namesSectionContents;
-        var pride_gallerySectionContents;
-
         $(function() {
-
             pride_runtime().then(htmlContents => {
                 pride_namesSectionContents = htmlContents;
                 pride_gallerySectionContents = pride_generateGallerySection(htmlContents);
@@ -145,68 +84,6 @@
                 console.log(e);
             });
         });
-
-        function pride_searchOnKeyUp() {
-            // Declare variables 
-            var input, filter, table, tr, td, i, txtValue;
-            input = document.getElementById("pride-search");
-            filter = input.value.toUpperCase();
-            table = document.getElementById("pride-table");
-            tr = table.getElementsByTagName("tr");
-
-            // Loop through all table rows, and hide those who don't match the search query
-            for (i = 0; i < tr.length; i++) {
-                td = tr[i].getElementsByTagName("th")[0];
-                if (td) {
-                    txtValue = td.textContent || td.innerText;
-                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                        tr[i].style.display = "";
-                    } else {
-                        tr[i].style.display = "none";
-                    }
-                } 
-            }
-        }
-
-        function prideSetupSections() {
-            /*$(document).on("submit", "#collapse-form", function(event) { 
-                const originalSource = $(".pride-artwork").attr('src');
-                $(".pride-artwork").attr("src", originalSource + "?" + (new Date()).getTime()); // force reload images
-            });*/
-
-            // click listeners
-            function prideToggleSection(sectionName) {
-                if (sectionName === 'names') {
-                    $("#pride-names-button").removeClass("btn-outline-secondary"); 
-                    $("#pride-names-button").addClass("btn-secondary"); 
-                    $("#pride-names-button").prop("disabled", true); 
-
-                    $("#pride-gallery-button").removeClass("btn-secondary"); 
-                    $("#pride-gallery-button").addClass("btn-outline-secondary"); 
-                    $("#pride-gallery-button").prop("disabled", false); 
-
-                    $("#pride-table-body").html(pride_namesSectionContents);
-                } else if (sectionName === 'gallery') {
-                    $("#pride-names-button").removeClass("btn-secondary"); 
-                    $("#pride-names-button").addClass("btn-outline-secondary"); 
-                    $("#pride-names-button").prop("disabled", false); 
-
-                    $("#pride-gallery-button").removeClass("btn-outline-secondary"); 
-                    $("#pride-gallery-button").addClass("btn-secondary"); 
-                    $("#pride-gallery-button").prop("disabled", true);
-                    
-                    $("#pride-table-body").html(pride_gallerySectionContents);
-                }
-            }
-
-            $(document).on("click", "#pride-names-button", function(event) {
-                prideToggleSection('names');
-            });
-
-            $(document).on("click", "#pride-gallery-button", function(event) {
-                prideToggleSection('gallery');
-            });
-        }
     </script>
 
 </body>

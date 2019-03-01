@@ -20,7 +20,9 @@ const ftpConfig = {
 };
 
 // routes
-app.use(express.static('static'))
+app.use("/external", express.static(__dirname + "/external"))
+app.use("/static", express.static(__dirname + "/static"))
+app.use("/scripts", express.static(__dirname + "/scripts"))
 
 // -- homepage
 app.get('/', (req, res) => {
@@ -56,28 +58,32 @@ app.post('/upload/:areaName', function(req, res) {
       res.status(400).send('No files were uploaded.');
       return;
     }
-  
-    console.log('req.files >>>', req.files); // eslint-disable-line
-  
+    
     sampleFile = req.files.sampleFile;
   
     uploadPath = __dirname + '/static/' + sampleFile.name;
-    db.push("/" + req.params.areaName, uploadPath);
+
+    let entryName = "/" + req.params.areaName + "/" + new Date().toISOString();
+    console.log("Adding screenshot entry with name " + entryName);
+    db.push(entryName, uploadPath);
 
     sampleFile.mv(uploadPath, function(err) {
       if (err) {
         return res.status(500).send(err);
       }
   
-      res.send('File uploaded to ' + uploadPath);
+      res.sendFile(path.join(__dirname + '/index.html')); // reload homepage when uploading file
     });
 });
 
 app.get('/artwork/:areaName', function(req, res) { 
     try {
         const response = db.getData("/" + req.params.areaName);
+        console.log("response = " + response);
+        console.log(JSON.stringify(response));
+
         if (response != null) {
-            res.status(200).sendFile(response);
+            res.status(200).send("OK");
             return;
         }
     } catch (e) {
