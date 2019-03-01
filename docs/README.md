@@ -3,20 +3,6 @@
 
 
 <p align="center">
-  <a href="https://github.com/insanj/pride/releases">
-    <img src="https://img.shields.io/github/release/insanj/pride.svg" />
-  </a>
- 
-  <a href="https://github.com/insanj/pride/">
-    <img src="https://img.shields.io/github/languages/code-size/insanj/pride.svg" />
-  </a>
-  
-  <a href="https://github.com/insanj/pride/blob/master/LICENSE">
-    <img src="https://img.shields.io/github/license/insanj/pride.svg" />
-  </a>
-  
-  <br/>
-  
   <a href="https://jdk.java.net/">
     <img src="https://img.shields.io/badge/java-10.0.2-red.svg" />
   </a>
@@ -30,21 +16,24 @@
   </a>
 </p>
 
-## About
+<p align="center">
+    Pride is a suite of lightweight Minecraft tools for Spigot/Bukkit servers. The core mod, `pride.jar`, helps players keep track of each other without the use of any dependancies. Although relatively simple in its design, this plugin aims to be really useful and offer a nice supplement to the built-in navigation features of Minecraft.
+</p>
 
-Pride is a lightweight Minecraft mod that helps everyone on a Bukkit/Spigot server keep track of each other. Although relatively simple in its design, Pride aims to be really useful and offer a nice supplement to the built-in navigation features of Minecraft.
+In addition to `pride.jar`, it is highly recommended that server runners use the Pride webapp, which allows for easy management of all features of Pride, and some added bonuses -- such as adding multiple screenshots to create a blog-like website which can be easily saved and exported to external publishing.
 
-<h5 align="center">Pride will be open sourced at version 1.0!</h5>
+Finally, some legacy users of Pride will need to convert from the old YAML string format to the new YAML dynamic format, a transition that occured in the first `0.4.0` version. This format is essential for powering the webapp and all `0.4.x` and beyond features. To convert from the old format to the new format, use 🐯 [tigon](#-use-tigon-to-convert-between-03x-and-04x-file-formats) by copy and pasting your `config.yml`.
 
 ## Playing
 
-- `/pride`
+- `/areas <page_number>`
 - `/settle <name>`
 - `/abandon <name>`
 - `/far <name>`
 - `/here <optional:username>`
 - `/between <name_1>, <name_2>`
 - `/compass <optional:area>`
+- `/north`
 
 ## Changelog
 
@@ -74,6 +63,17 @@ worlds:
     Cottage on the Cliff of the Icebergs: -910.49,74.00,-7357.35
     Chicken Farm: -705.96,67.00,-8065.75
 ```
+
+## Webapp
+
+Pride is most useful when paired with its simple webapp, designed to be ran locally on your computer.
+
+If your server can be accessed with FTP, drop the `host`, `user`, and `password` in a `.env` file in the root `/webapp` directory. 
+
+When launched using `npm start` (make sure to run `npm install` beforehand), the webapp will download the `/plugins/pride/config.yml` automatically and use it along with its own local JSON file to power the website.
+
+![](webapp.png)
+
 
 ## Building
 
