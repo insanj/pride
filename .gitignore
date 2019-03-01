@@ -4,7 +4,8 @@ logs/
 world/
 world_nether/
 world_the_end/
-uploads/*.png
+uploads/
+external/
 
 # Compiled class file
 *.class
