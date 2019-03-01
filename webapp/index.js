@@ -23,6 +23,7 @@ const ftpConfig = {
 app.use("/external", express.static(__dirname + "/external"))
 app.use("/static", express.static(__dirname + "/static"))
 app.use("/scripts", express.static(__dirname + "/scripts"))
+app.use("/uploads", express.static(__dirname + "/uploads"))
 
 // -- homepage
 app.get('/', (req, res) => {
@@ -61,11 +62,11 @@ app.post('/upload/:areaName', function(req, res) {
     
     sampleFile = req.files.sampleFile;
   
-    uploadPath = __dirname + '/static/' + sampleFile.name;
+    uploadPath = __dirname + '/uploads/' + sampleFile.name;
 
     let entryName = "/" + req.params.areaName + "/" + new Date().toISOString();
     console.log("Adding screenshot entry with name " + entryName);
-    db.push(entryName, uploadPath);
+    db.push(entryName, sampleFile.name);
 
     sampleFile.mv(uploadPath, function(err) {
       if (err) {
@@ -76,14 +77,20 @@ app.post('/upload/:areaName', function(req, res) {
     });
 });
 
-app.get('/artwork/:areaName', function(req, res) { 
+app.get('/artwork/:areaName', async function(req, res) { 
     try {
         const response = db.getData("/" + req.params.areaName);
-        console.log("response = " + response);
-        console.log(JSON.stringify(response));
+        let imagePaths = [];
+
+        for (var timestamp in response) {
+            let imagePath = "/uploads/" + response[timestamp];
+            imagePaths.push(imagePath);
+        }
 
         if (response != null) {
-            res.status(200).send("OK");
+            res.status(200).send({
+                imagePaths
+            });
             return;
         }
     } catch (e) {
