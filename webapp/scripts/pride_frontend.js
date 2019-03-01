@@ -27,13 +27,14 @@ function pride_generateTableBodyString(elements) {
     return colString;
 }
 
-function pride_generateGallerySection(htmlContents) {
+function pride_generateGallerySection(htmlContents, imageCallback) {
     var regex = /<th id="([^"]+)" scope="row">([^"]+)<\/th>/g;
     return htmlContents.replace(regex, function($0, $1, $2, $3) {
         let filename = $1;
         let areaName = $2;
         let uploadFormString = "<form class='' id='collapse-form' ref='uploadForm' id='pride-upload' action='/upload/" + filename + "' method='post' encType='multipart/form-data'> <input type='file' name='sampleFile' /> <input type='submit' value='Upload' /></form>";
-        let artworkString = "<img style='display: block;' class='pride-artwork rounded' src='/artwork/" + filename + "' height='320' width='auto' onerror='this.style.display=\"none\"' />";
+
+        let artworkString = imageCallback(areaName, filename);
         let replacement = '<th id="' + filename + '" scope="row">' + areaName + artworkString + uploadFormString + '</th>';
         return replacement;
     });
