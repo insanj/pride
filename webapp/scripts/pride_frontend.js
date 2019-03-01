@@ -32,7 +32,7 @@ function pride_generateGallerySection(htmlContents, imageCallback) {
     return htmlContents.replace(regex, function($0, $1, $2, $3) {
         let filename = $1;
         let areaName = $2;
-        let uploadFormString = "<form class='' id='collapse-form' ref='uploadForm' id='pride-upload' action='/upload/" + filename + "' method='post' encType='multipart/form-data'> <input type='file' name='sampleFile' /> <input type='submit' value='Upload' /></form>";
+        let uploadFormString = "<form class='' id='collapse-form' ref='uploadForm' id='pride-upload' action='/upload/" + filename + "' method='post' encType='multipart/form-data'> <input type='file' name='sampleFile' /></form>";
 
         let artworkString = imageCallback(areaName, filename);
         let replacement = '<th id="' + filename + '" scope="row">' + areaName + artworkString + uploadFormString + '</th>';

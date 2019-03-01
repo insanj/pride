@@ -62,26 +62,8 @@
     <script type="text/javascript" src="/scripts/pride_interactions.js"></script>
 
     <script>       
-        var pride_namesSectionContents;
-        var pride_gallerySectionContents;
- 
-        async function pride_runtime() {
-            const response = await pride_downloadPrideResponse();
-            const responseJSON = pride_convertPrideResponseToJSON(response);
-            const elements = pride_convertPrideResponseToTableBodyElements(responseJSON);
-            const string = pride_generateTableBodyString(elements);
-            $("#pride-table-body").append(string);
-            return string;
-        }
-
         $(function() {
-            pride_runtime().then(htmlContents => {
-                pride_namesSectionContents = htmlContents;
-                pride_gallerySectionContents = pride_generateGallerySection(htmlContents, function(areaName, filename) {
-                    return pride_syncGenerateImageHTMLStringForArea(filename);
-                });
-
-                pride_searchOnKeyUp(); // just to make sure any lingering input is used on load
+            pride_runtime().then(r => {
                 prideSetupSections();
             }).catch(e => {
                 console.log(e);

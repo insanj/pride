@@ -1,6 +1,27 @@
 // pride webapp UX
 // (c) 2019 julian weiss
 
+var pride_namesSectionContents;
+var pride_gallerySectionContents;
+
+async function pride_runtime() {
+    $("#pride-table-body").html("");
+
+    const response = await pride_downloadPrideResponse();
+    const responseJSON = pride_convertPrideResponseToJSON(response);
+    const elements = pride_convertPrideResponseToTableBodyElements(responseJSON);
+    const htmlContents = pride_generateTableBodyString(elements);
+    $("#pride-table-body").append(htmlContents);
+
+    pride_namesSectionContents = htmlContents;
+    pride_gallerySectionContents = pride_generateGallerySection(htmlContents, function(areaName, filename) {
+        return pride_syncGenerateImageHTMLStringForArea(filename);
+    });
+
+    pride_searchOnKeyUp(); // just to make sure any lingering input is used on load
+    return;
+}
+
 function pride_searchOnKeyUp() {
     // Declare variables 
     var input, filter, table, tr, td, i, txtValue;
@@ -60,5 +81,30 @@ function prideSetupSections() {
 
     $(document).on("click", "#pride-gallery-button", function(event) {
         prideToggleSection('gallery');
+    });
+
+    $(document).on("change", 'input[type="file"]', function(event) {
+        event.preventDefault();
+
+        if (!this.files || this.files.length <= 0) {
+            return;
+        }
+
+        const url = this.form.action;
+        let promises = [];
+        for (let file of this.files) {
+            let data = new FormData($(this.form)[0]);
+            promises.push(pride_uploadPrideArtwork(url, data));
+        }
+
+        Promise.all(promises).then(r => {
+            pride_runtime().then(pr => {
+                prideToggleSection('gallery');
+            }).catch(e => {
+                console.log(e);
+            });
+        }).catch(e => {
+            console.log(e);
+        });
     });
 }

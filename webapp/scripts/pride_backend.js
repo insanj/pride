@@ -27,6 +27,21 @@ async function pride_downloadPrideResponse() {
     })
 }
 
+async function pride_uploadPrideArtwork(url, data) {
+    return await new Promise((resolve, reject) => {
+        $.ajax({
+            type: 'POST',
+            url,
+            data,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: resolve,
+            error: reject
+        });
+    })
+}
+
 function pride_syncGenerateImageHTMLStringForArea(filename) {
     const request = new XMLHttpRequest();
     request.open('GET',  "/artwork/" + filename, false);  // `false` makes the request synchronous
