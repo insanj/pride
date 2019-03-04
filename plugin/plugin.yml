@@ -9,6 +9,11 @@ commands:
     usage: |
              Settle your current area to Pride
              /settle <name>
+  trigger:
+    description: Toggle trigger setting for an area
+    usage: |
+             Toggle trigger setting for an area
+             /trigger <name>
   abandon:
     description: Abandon a given area in Pride
     usage: |

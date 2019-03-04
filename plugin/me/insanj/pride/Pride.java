@@ -268,7 +268,6 @@ public class Pride extends JavaPlugin {
             }
         });
 
-
         getCommand("north").setExecutor(new CommandExecutor() {
             public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
                 if (!(sender instanceof Player)) {
