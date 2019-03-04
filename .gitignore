@@ -1,5 +1,6 @@
 .env
 node_modules/
+pride-webapp-artwork.json
 
 server/
 build/
