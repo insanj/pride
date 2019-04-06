@@ -55,9 +55,15 @@ public class PrideCommandExecutor {
                             String messageString = "";
 
                             Map<String, Map<String, Double>> prideAreas = persis.getPrideAreas(world);
-                            for (String areaName: prideAreas.keySet()) {
-                              Map<String, Double> prideArea = prideAreas.get(areaName);
-                              messageString += areaName + " " + prideArea.toString();
+                            if (prideAreas == null || prideAreas.size() <= 0) {
+                                messageString = "No Pride areas found in this world.";
+                            }
+                            
+                            else {
+                                for (String areaName: prideAreas.keySet()) {
+                                  Map<String, Double> prideArea = prideAreas.get(areaName);
+                                  messageString += areaName + " " + prideArea.toString();
+                                }
                             }
 
                             StringTextComponent message = new StringTextComponent(messageString);
