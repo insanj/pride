@@ -78,20 +78,32 @@ public class PrideEntityTracker {
 
       // get all players logged into the server
       Set<ServerPlayerEntity> entities = (Set<ServerPlayerEntity>)PlayerStream.all(server).collect(Collectors.toSet());
-      // System.out.println("entities = " + entities.toString());
 
       // loop through all players active on server
       for (ServerPlayerEntity player : entities) {
+        ServerWorld world = player.getServerWorld();
+        calculateActivatedPrideAreasForPlayer(world, player);
+      }
+
+      // reset bottleneck counter at end of execution/for loop
+      superLazyBottleneck = 0;
+    });
+  }
+
+  // async/thread-based function to run calculations for pride areas off main
+  public void calculateActivatedPrideAreasForPlayer(ServerWorld world, ServerPlayerEntity player) {
+    PrideEntityTracker tracker = this;
+    new Thread(new Runnable() { 
+      public void run() { 
         String playerName = player.getName().getString();
         BlockPos pos = player.getBlockPos();
-        ServerWorld world = player.getServerWorld();
 
         // get pride areas for world that player is in (should be cached)
         PridePersistentState persis = PridePersistentState.get(world);
         Map<String, Map<String, Double>> areas = persis.getPrideAreas(world);
 
         if (areas == null || areas.size() <= 0) {
-          continue; // no areas in this world
+          return; // no areas in this world
         }
 
         // System.out.println(String.format("looping through %s in %s seeing if %s is in range of something", areas.toString(), world.toString(), pos.toString()));
@@ -106,54 +118,34 @@ public class PrideEntityTracker {
 
           if (distanceBetween <= areaDetectionDistance) {
             // activate!
-            if (currentlyActivatedAreas.get(playerName) == null) {
+            if (tracker.currentlyActivatedAreas.get(playerName) == null) {
               ArrayList<String> playerActivatedAreas = new ArrayList<String>();
               playerActivatedAreas.add(areaName);
 
-              currentlyActivatedAreas.put(playerName, playerActivatedAreas);
+              tracker.currentlyActivatedAreas.put(playerName, playerActivatedAreas);
               player.addChatMessage(new StringTextComponent(String.format("%s activated %s!", playerName, areaName)), false); 
             }
 
             // activate!
-            else if (currentlyActivatedAreas.get(playerName).contains(areaName) == false) {
-              ArrayList<String> playerActivatedAreas = currentlyActivatedAreas.get(playerName);
+            else if (tracker.currentlyActivatedAreas.get(playerName).contains(areaName) == false) {
+              ArrayList<String> playerActivatedAreas = tracker.currentlyActivatedAreas.get(playerName);
               playerActivatedAreas.add(areaName);
 
-              currentlyActivatedAreas.put(playerName, playerActivatedAreas);
+              tracker.currentlyActivatedAreas.put(playerName, playerActivatedAreas);
               player.addChatMessage(new StringTextComponent(String.format("%s activated %s!", playerName, areaName)), false);
             }
           }
 
           // stop activating...
           else {
-            if (currentlyActivatedAreas.get(playerName).contains(areaName)) {
-              ArrayList<String> playerActivatedAreas = currentlyActivatedAreas.get(playerName);
+            if (tracker.currentlyActivatedAreas.get(playerName) != null && tracker.currentlyActivatedAreas.get(playerName).contains(areaName)) {
+              ArrayList<String> playerActivatedAreas = tracker.currentlyActivatedAreas.get(playerName);
               playerActivatedAreas.remove(areaName);
-              currentlyActivatedAreas.put(playerName, playerActivatedAreas);
+              tracker.currentlyActivatedAreas.put(playerName, playerActivatedAreas);
             }
           }
         }
       }
-
-      // reset bottleneck counter at end of execution/for loop
-      superLazyBottleneck = 0;
-    });
-  }
-
-/*
-  private void useFabricTrackerPrototype() {
-    int trackingDistance = 50;
-    int updateIntervalTicks = 1;
-    boolean alwaysUpdateVelocity = false;
-
-    EntityCategory playerCategory = EntityType.PLAYER.category;
-    EntityType type = FabricEntityTypeBuilder.create(playerCategory, (entityType, world, entity) -> {
-      System.out.println("yo yo yo!");
-      System.out.println("tick! entity = " + entity.toString() + " world = " + world.toString());
-      return entity;
-    }).trackable(trackingDistance, updateIntervalTicks, alwaysUpdateVelocity).build();
-
-    EntityTrackingRegistry.INSTANCE.register(type, trackingDistance, updateIntervalTicks, alwaysUpdateVelocity);
-  }
-*/
+    }).start(); 
+  } 
 }

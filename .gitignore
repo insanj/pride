@@ -11,6 +11,8 @@ world_the_end/
 uploads/
 external/
 
+.gradle/
+
 # Compiled class file
 *.class
 

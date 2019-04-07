@@ -17,15 +17,15 @@
   <br/>
 
   <a href="https://jdk.java.net/">
-    <img src="https://img.shields.io/badge/java-10.0.2-red.svg" />
+    <img src="https://img.shields.io/badge/java-8-red.svg" />
   </a>
   
-  <a href="https://getbukkit.org/download/craftbukkit">
-    <img src="https://img.shields.io/badge/bukkit-1.13.2-orange.svg" />
+  <a href="https://fabricmc.net/">
+    <img src="https://img.shields.io/badge/fabric-19w12b-orange.svg" />
   </a>
   
-  <a href="https://www.spigotmc.org/resources/pride.64859/">
-    <img src="https://img.shields.io/badge/🚀-Download%20on%20spigotmc.org-blue.svg" />
+  <a href="https://github.com/insanj/pride/releases/">
+    <img src="https://img.shields.io/badge/🚀-Download%20on%20Github-blue.svg" />
   </a>
 </p>
 
