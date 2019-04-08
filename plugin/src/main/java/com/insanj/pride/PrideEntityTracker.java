@@ -45,6 +45,10 @@ import net.minecraft.entity.EntityCategory;
 import net.minecraft.entity.EntitySize;
 import net.minecraft.entity.EntityType;
 import net.minecraft.world.World;
+import net.minecraft.text.Style;
+import net.minecraft.text.TextComponent;
+import net.minecraft.text.TextFormat;
+import net.minecraft.text.TranslatableTextComponent;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -82,7 +86,7 @@ public class PrideEntityTracker {
       // loop through all players active on server
       for (ServerPlayerEntity player : entities) {
         ServerWorld world = player.getServerWorld();
-        calculateActivatedPrideAreasForPlayer(world, player);
+        calculateActivatedPrideAreasForPlayer(server, world, player);
       }
 
       // reset bottleneck counter at end of execution/for loop
@@ -91,7 +95,7 @@ public class PrideEntityTracker {
   }
 
   // async/thread-based function to run calculations for pride areas off main
-  public void calculateActivatedPrideAreasForPlayer(ServerWorld world, ServerPlayerEntity player) {
+  public void calculateActivatedPrideAreasForPlayer(MinecraftServer server, ServerWorld world, ServerPlayerEntity player) {
     PrideEntityTracker tracker = this;
     new Thread(new Runnable() { 
       public void run() { 
@@ -123,7 +127,9 @@ public class PrideEntityTracker {
               playerActivatedAreas.add(areaName);
 
               tracker.currentlyActivatedAreas.put(playerName, playerActivatedAreas);
-              player.addChatMessage(new StringTextComponent(String.format("%s activated %s!", playerName, areaName)), false); 
+
+              sendServerMessage(server, String.format("%s is entering %s!", playerName, areaName));
+              sendPlayerMessage(player, String.format("Welcome to the\n%s", areaName));
             }
 
             // activate!
@@ -132,7 +138,9 @@ public class PrideEntityTracker {
               playerActivatedAreas.add(areaName);
 
               tracker.currentlyActivatedAreas.put(playerName, playerActivatedAreas);
-              player.addChatMessage(new StringTextComponent(String.format("%s activated %s!", playerName, areaName)), false);
+
+              sendServerMessage(server, String.format("%s is entering %s!", playerName, areaName));
+              sendPlayerMessage(player, String.format("Welcome to the\n%s", areaName));
             }
           }
 
@@ -146,6 +154,20 @@ public class PrideEntityTracker {
           }
         }
       }
-    }).start(); 
+
+      private void sendPlayerMessage(ServerPlayerEntity player, String message) {
+        player.addChatMessage(new StringTextComponent(message), true);
+      }
+
+      private void sendServerMessage(MinecraftServer server, String message) {
+        StringTextComponent component = new StringTextComponent(message);
+        component.setStyle(new Style().setColor(TextFormat.BLUE));
+
+        Set<ServerPlayerEntity> players = (Set<ServerPlayerEntity>)PlayerStream.all(server).collect(Collectors.toSet());
+        for (ServerPlayerEntity player : players) {
+          player.addChatMessage(component, false);
+        }
+      }
+    }).start();
   } 
 }

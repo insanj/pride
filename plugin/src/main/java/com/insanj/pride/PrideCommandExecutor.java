@@ -59,6 +59,10 @@ import net.minecraft.world.World;
 import net.minecraft.world.BlockView;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.client.network.packet.PlayerSpawnPositionS2CPacket;
+import net.minecraft.text.Style;
+import net.minecraft.text.TextComponent;
+import net.minecraft.text.TextFormat;
+import net.minecraft.text.TranslatableTextComponent;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -82,94 +86,96 @@ public class PrideCommandExecutor {
     private void registerPrideCommand() {
         CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
                 ServerCommandManager.literal("pride")
-                        .executes(context -> {
-                            ServerWorld world = context.getSource().getWorld();
-                            PridePersistentState persis = PridePersistentState.get(world);
-                            String messageString = "";
+                    .executes(context -> {
+                        ServerWorld world = context.getSource().getWorld();
+                        PridePersistentState persis = PridePersistentState.get(world);
+                        String messageString = "";
 
-                            Map<String, Map<String, Double>> prideAreas = persis.getPrideAreas(world);
-                            if (prideAreas == null || prideAreas.size() <= 0) {
-                                messageString = "No Pride areas found in this world.";
+                        Map<String, Map<String, Double>> prideAreas = persis.getPrideAreas(world);
+                        if (prideAreas == null || prideAreas.size() <= 0) {
+                            messageString = "No Pride areas found in this world.";
+                        }
+                        
+                        else {
+                            for (String areaName: prideAreas.keySet()) {
+                              Map<String, Double> prideArea = prideAreas.get(areaName);
+                              messageString += areaName + " " + prideArea.toString();
                             }
-                            
-                            else {
-                                for (String areaName: prideAreas.keySet()) {
-                                  Map<String, Double> prideArea = prideAreas.get(areaName);
-                                  messageString += areaName + " " + prideArea.toString();
-                                }
-                            }
+                        }
 
-                            StringTextComponent message = new StringTextComponent(messageString);
-                            context.getSource().getPlayer().addChatMessage(message, false);
-                            return 1;
-                        })
+                        StringTextComponent message = new StringTextComponent(messageString);
+                        context.getSource().getPlayer().addChatMessage(message, false);
+                        return 1;
+                    })
         ));
     }
 
     private void registerSettleCommand() {
         CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
                 ServerCommandManager.literal("settle")
-                        .then(ServerCommandManager.argument("name", StringArgumentType.string())
-                        .executes(context -> {
-                            ServerWorld world = context.getSource().getWorld();
-                            String areaName = StringArgumentType.getString(context, "name");
+                    .then(ServerCommandManager.argument("name", StringArgumentType.greedyString())
+                    .executes(context -> {
+                        ServerWorld world = context.getSource().getWorld();
+                        String areaName = StringArgumentType.getString(context, "name");
 
-                            BlockPos pos = context.getSource().getPlayer().getBlockPos();
-                            Map<String, Double> area = new HashMap();
-                            area.put("x", new Double(pos.getX()));
-                            area.put("y", new Double(pos.getY()));
-                            area.put("z", new Double(pos.getZ()));
+                        BlockPos pos = context.getSource().getPlayer().getBlockPos();
+                        Map<String, Double> area = new HashMap();
+                        area.put("x", new Double(pos.getX()));
+                        area.put("y", new Double(pos.getY()));
+                        area.put("z", new Double(pos.getZ()));
 
-                            PridePersistentState persis = PridePersistentState.get(world);
-                            persis.setPrideArea(world, areaName, area);
+                        PridePersistentState persis = PridePersistentState.get(world);
+                        persis.setPrideArea(world, areaName, area);
 
-                            StringTextComponent message = new StringTextComponent("Founded " + areaName + "!");
-                            context.getSource().getPlayer().addChatMessage(message, false);
-                            return 1;
-                        }))
+                        StringTextComponent message = new StringTextComponent("Founded " + areaName + "!");
+                        message.setStyle(new Style().setColor(TextFormat.GREEN));
+                        context.getSource().getPlayer().addChatMessage(message, false);
+                        return 1;
+                    }))
         ));
     }
 
     private void registerAbandonCommand() {
         CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
                 ServerCommandManager.literal("abandon")
-                        .then(ServerCommandManager.argument("name", StringArgumentType.string())
-                        .executes(context -> {
-                            ServerWorld world = context.getSource().getWorld();
-                            String areaName = StringArgumentType.getString(context, "name");
-
-                            PridePersistentState persis = PridePersistentState.get(world);
-                            persis.removePrideArea(world, areaName);
-
-                            StringTextComponent message = new StringTextComponent("Removed " + areaName + "!");
-                            context.getSource().getPlayer().addChatMessage(message, false);
-                            return 1;
-                        }))
-        ));
-    }
-
-
-    private void registerCompassCommand() {
-        CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
-            ServerCommandManager.literal("compass")
-                .then(ServerCommandManager.argument("name", StringArgumentType.string())
+                    .then(ServerCommandManager.argument("name", StringArgumentType.greedyString())
                     .executes(context -> {
-                        // translate the area name given in the command to the x/y/z coordinates for the pride area
                         ServerWorld world = context.getSource().getWorld();
                         String areaName = StringArgumentType.getString(context, "name");
 
                         PridePersistentState persis = PridePersistentState.get(world);
-                        Map<String, Double> area = persis.getPrideArea(world, areaName);
-                        BlockPos pos = new BlockPos((double)area.get("x"), (double)area.get("y"), (double)area.get("z"));
+                        persis.removePrideArea(world, areaName);
 
-                        ServerPlayerEntity player = context.getSource().getPlayer();
-                        PlayerSpawnPositionS2CPacket packet = new PlayerSpawnPositionS2CPacket(pos);
-                        player.networkHandler.sendPacket(packet);
-
-                        StringTextComponent message = new StringTextComponent("Compass pointed towards " + areaName + "!");
+                        StringTextComponent message = new StringTextComponent("Removed " + areaName + "!");
+                        message.setStyle(new Style().setColor(TextFormat.GREEN));
                         context.getSource().getPlayer().addChatMessage(message, false);
                         return 1;
                     }))
+        ));
+    }
+
+    private void registerCompassCommand() {
+        CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
+            ServerCommandManager.literal("compass")
+                .then(ServerCommandManager.argument("name", StringArgumentType.greedyString())
+                .executes(context -> {
+                    // translate the area name given in the command to the x/y/z coordinates for the pride area
+                    ServerWorld world = context.getSource().getWorld();
+                    String areaName = StringArgumentType.getString(context, "name");
+
+                    PridePersistentState persis = PridePersistentState.get(world);
+                    Map<String, Double> area = persis.getPrideArea(world, areaName);
+                    BlockPos pos = new BlockPos((double)area.get("x"), (double)area.get("y"), (double)area.get("z"));
+
+                    ServerPlayerEntity player = context.getSource().getPlayer();
+                    PlayerSpawnPositionS2CPacket packet = new PlayerSpawnPositionS2CPacket(pos);
+                    player.networkHandler.sendPacket(packet);
+
+                    StringTextComponent message = new StringTextComponent("Compass pointed towards " + areaName + "!");
+                    message.setStyle(new Style().setColor(TextFormat.GREEN));
+                    context.getSource().getPlayer().addChatMessage(message, false);
+                    return 1;
+                }))
         ));
     }
 }
