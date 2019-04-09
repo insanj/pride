@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.stream.Stream;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
+import java.util.UUID;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.registry.CommandRegistry;
@@ -49,7 +50,9 @@ import net.minecraft.text.Style;
 import net.minecraft.text.TextComponent;
 import net.minecraft.text.TextFormat;
 import net.minecraft.text.TranslatableTextComponent;
+import net.minecraft.text.NbtTextComponent;
 import net.minecraft.text.event.HoverEvent;
+import net.minecraft.command.EntitySelector;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -131,7 +134,7 @@ public class PrideEntityTracker {
 
               tracker.currentlyActivatedAreas.put(playerName, playerActivatedAreas);
 
-              sendServerMessage(server, playerName, areaName, areaDescription);
+              sendServerMessage(server, player, areaName, areaDescription);
               sendPlayerMessage(player, areaName);
             }
 
@@ -142,7 +145,7 @@ public class PrideEntityTracker {
 
               tracker.currentlyActivatedAreas.put(playerName, playerActivatedAreas);
 
-              sendServerMessage(server, playerName, areaName, areaDescription);
+              sendServerMessage(server, player, areaName, areaDescription);
               sendPlayerMessage(player, areaName);
             }
           }
@@ -169,10 +172,29 @@ public class PrideEntityTracker {
         player.addChatMessage(component, true);
       }
 
-      private void sendServerMessage(MinecraftServer server, String playerName, String areaName, String areaDescription) {
+      private void sendServerMessage(MinecraftServer server, ServerPlayerEntity player, String areaName, String areaDescription) {
+        String playerName = player.getName().getString();
         StringTextComponent playerComponent = new StringTextComponent(playerName);
+       
         Style playerComponentStyle = new Style();
         playerComponentStyle.setColor(TextFormat.BLUE);
+
+        //String entityJSONString = String.format("{\"name\":\"%s\", \"type\":\"Player\", \"uuid\":\"%s\"}", playerName, player.getUuid().toString());
+        // TextComponent entityTextComponent = TextComponent.Serializer.fromLenientJsonString(entityJSONString);
+        
+        // EntitySelector selector = new EntitySelector();
+        // selector.playerName = playerName;
+        // selector.entityId = player.getUuid();
+
+        // 1 selector 2 ?? 3 path
+        // TextComponent entityTextComponent = new NbtTextComponent.EntityNbtTextComponent(playerName, true, player.getUuid().toString());
+
+        BlockPos playerPos = player.getBlockPos();
+        String playerHoverDescriptionString = String.format("Entered at location, x: %d, y: %d, z: %d", playerPos.getX(), playerPos.getY(), playerPos.getZ());
+        StringTextComponent playerHoverDescriptionComponent = new StringTextComponent(playerHoverDescriptionString);
+        HoverEvent playerHoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, playerHoverDescriptionComponent);
+        playerComponentStyle.setHoverEvent(playerHoverEvent);
+
         playerComponent.setStyle(playerComponentStyle);
 
         StringTextComponent fillerComponent = new StringTextComponent(" is entering ");
@@ -200,8 +222,8 @@ public class PrideEntityTracker {
         TextComponent concatComponent = playerComponent.append(fillerComponent).append(areaComponent).append(punctuationComponent);
 
         Set<ServerPlayerEntity> players = (Set<ServerPlayerEntity>)PlayerStream.all(server).collect(Collectors.toSet());
-        for (ServerPlayerEntity player : players) {
-          player.addChatMessage(concatComponent, false);
+        for (ServerPlayerEntity onlinePlayer : players) {
+          onlinePlayer.addChatMessage(concatComponent, false);
         }
       }
     }).start();
