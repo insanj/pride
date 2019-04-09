@@ -49,6 +49,7 @@ import net.minecraft.text.Style;
 import net.minecraft.text.TextComponent;
 import net.minecraft.text.TextFormat;
 import net.minecraft.text.TranslatableTextComponent;
+import net.minecraft.text.event.HoverEvent;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -121,6 +122,8 @@ public class PrideEntityTracker {
           double distanceBetween = Math.abs(Math.abs(areaPos.getX() - pos.getX()) + Math.abs(areaPos.getY() - pos.getY()) + Math.abs(areaPos.getZ() - pos.getZ()));
 
           if (distanceBetween <= areaDetectionDistance) {
+            String areaDescription = String.format("x: %d, y: %d, z: %d", (Integer)areaPos.getX(), (Integer)areaPos.getY(), (Integer)areaPos.getZ());
+
             // activate!
             if (tracker.currentlyActivatedAreas.get(playerName) == null) {
               ArrayList<String> playerActivatedAreas = new ArrayList<String>();
@@ -128,8 +131,8 @@ public class PrideEntityTracker {
 
               tracker.currentlyActivatedAreas.put(playerName, playerActivatedAreas);
 
-              sendServerMessage(server, String.format("%s is entering %s!", playerName, areaName));
-              sendPlayerMessage(player, String.format("Welcome to the\n%s", areaName));
+              sendServerMessage(server, playerName, areaName, areaDescription);
+              sendPlayerMessage(player, areaName);
             }
 
             // activate!
@@ -139,8 +142,8 @@ public class PrideEntityTracker {
 
               tracker.currentlyActivatedAreas.put(playerName, playerActivatedAreas);
 
-              sendServerMessage(server, String.format("%s is entering %s!", playerName, areaName));
-              sendPlayerMessage(player, String.format("Welcome to the\n%s", areaName));
+              sendServerMessage(server, playerName, areaName, areaDescription);
+              sendPlayerMessage(player, areaName);
             }
           }
 
@@ -155,17 +158,50 @@ public class PrideEntityTracker {
         }
       }
 
-      private void sendPlayerMessage(ServerPlayerEntity player, String message) {
-        player.addChatMessage(new StringTextComponent(message), true);
+      private void sendPlayerMessage(ServerPlayerEntity player, String areaName) {
+        StringTextComponent component = new StringTextComponent(areaName);
+
+        Style style = new Style();
+        style.setColor(TextFormat.GOLD);
+        style.setBold(true);
+        component.setStyle(style);
+
+        player.addChatMessage(component, true);
       }
 
-      private void sendServerMessage(MinecraftServer server, String message) {
-        StringTextComponent component = new StringTextComponent(message);
-        component.setStyle(new Style().setColor(TextFormat.BLUE));
+      private void sendServerMessage(MinecraftServer server, String playerName, String areaName, String areaDescription) {
+        StringTextComponent playerComponent = new StringTextComponent(playerName);
+        Style playerComponentStyle = new Style();
+        playerComponentStyle.setColor(TextFormat.BLUE);
+        playerComponent.setStyle(playerComponentStyle);
+
+        StringTextComponent fillerComponent = new StringTextComponent(" is entering ");
+        Style fillerComponentStyle = new Style();
+        fillerComponentStyle.setColor(TextFormat.WHITE);
+        fillerComponent.setStyle(fillerComponentStyle);
+
+        StringTextComponent areaComponent = new StringTextComponent(areaName);
+        Style areaComponentStyle = new Style();
+        areaComponentStyle.setColor(TextFormat.GOLD);
+        areaComponentStyle.setBold(true);
+
+        StringTextComponent areaDescriptionComponent = new StringTextComponent(areaDescription);
+        HoverEvent areaHoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, areaDescriptionComponent);
+        areaComponentStyle.setHoverEvent(areaHoverEvent);
+
+        areaComponent.setStyle(areaComponentStyle);
+
+        StringTextComponent punctuationComponent = new StringTextComponent("!");
+        Style punctuationComponentStyle = new Style();
+        punctuationComponentStyle.setColor(TextFormat.WHITE);
+        punctuationComponentStyle.setBold(false);
+        punctuationComponent.setStyle(punctuationComponentStyle);
+
+        TextComponent concatComponent = playerComponent.append(fillerComponent).append(areaComponent).append(punctuationComponent);
 
         Set<ServerPlayerEntity> players = (Set<ServerPlayerEntity>)PlayerStream.all(server).collect(Collectors.toSet());
         for (ServerPlayerEntity player : players) {
-          player.addChatMessage(component, false);
+          player.addChatMessage(concatComponent, false);
         }
       }
     }).start();
