@@ -14,18 +14,31 @@
     <img src="https://img.shields.io/github/license/insanj/pride.svg" />
   </a>
 
+  <a href="https://github.com/insanj/pride/releases/">
+    <img src="https://img.shields.io/badge/🚀-Download%20on%20Github-green.svg" />
+  </a>
+  
   <br/>
 
   <a href="https://jdk.java.net/">
-    <img src="https://img.shields.io/badge/java-8-red.svg" />
+    <img src="https://img.shields.io/badge/java-8%20(1.8.0--131)-red.svg" />
+  </a>
+
+
+  <a href="https://minecraft.net/">
+    <img src="https://img.shields.io/badge/minecraft-1.14%20(19w12b)-yellow.svg" />
   </a>
   
-  <a href="https://fabricmc.net/">
-    <img src="https://img.shields.io/badge/fabric-19w12b-orange.svg" />
+  <a href="https://maven.fabricmc.net/net/fabricmc/fabric">
+    <img src="https://img.shields.io/badge/fabric-0.2.5.114-grey.svg" />
+  </a>
+
+  <a href="https://fabricmc.net/use">
+    <img src="https://img.shields.io/badge/fabric--yarn-19w12b.10-pink.svg" />
   </a>
   
-  <a href="https://github.com/insanj/pride/releases/">
-    <img src="https://img.shields.io/badge/🚀-Download%20on%20Github-blue.svg" />
+  <a href="https://fabricmc.net/use">
+    <img src="https://img.shields.io/badge/fabric--loader-0.3.7.109-beige.svg" />
   </a>
 </p>
 
