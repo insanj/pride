@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.registry.CommandRegistry;
@@ -79,37 +80,44 @@ public class PrideCommandExecutor {
 
     public void register() {
         registerPrideCommand();
+        registerAreasCommand();
         registerSettleCommand();
         registerAbandonCommand();
         registerCompassCommand();
     }
 
     private void registerPrideCommand() {
-        CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
+      CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
             ServerCommandManager.literal("pride")
+                .executes(context -> {
+                    ServerPlayerEntity player = context.getSource().getPlayer();
+
+                    ArrayList<TextComponent> components = new ArrayList<TextComponent>();
+                    components.add(new StringTextComponent("Available Pride commands:"));
+                    components.add(new StringTextComponent("/compass <area_name>"));
+                    components.add(new StringTextComponent("/areas <page_number>"));
+                    components.add(new StringTextComponent("/settle <area_name>"));
+                    components.add(new StringTextComponent("/abandon <area_name>"));
+
+                    for (TextComponent c : components) {
+                        player.addChatMessage(c, false);
+                    }
+
+                    return 1;
+                })
+        ));
+    }
+
+    private void registerAreasCommand() {
+        CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
+            ServerCommandManager.literal("areas")
                 .then(ServerCommandManager.argument("pageNumber", IntegerArgumentType.integer())
                 .executes(context -> {
                     ServerWorld world = context.getSource().getWorld();
                     PridePersistentState persis = PridePersistentState.get(world);
-
-                    /*
-                    String messageString = "";
-
-                    Map<String, Map<String, Double>> prideAreas = persis.getPrideAreas(world);
-                    if (prideAreas == null || prideAreas.size() <= 0) {
-                        messageString = "No Pride areas found in this world.";
-                    }
-                    
-                    else {
-                        for (String areaName: prideAreas.keySet()) {
-                          Map<String, Double> prideArea = prideAreas.get(areaName);
-                          messageString += areaName + " " + prideArea.toString();
-                        }
-                    }
-                    */
-
                     ServerPlayerEntity player = context.getSource().getPlayer();
                     Map<String, Map<String, Double>> prideAreas = persis.getPrideAreas(world);
+
                     if (prideAreas == null) {
                         StringTextComponent component = new StringTextComponent("No Pride areas found :(");
                         player.addChatMessage(component, false);
@@ -117,28 +125,19 @@ public class PrideCommandExecutor {
                     }
 
                     BlockPos playerLocation = player.getBlockPos();
+                    List<String> sortedPrideAreaNames = new ArrayList<>(prideAreas.keySet());
+                    Collections.sort(sortedPrideAreaNames);
 
-                    // mini-routine:
-                    // 1. sort all areas by name OR distance (TODO allow for providing custom world arg)
-                    // 2. split up into groups of 8, each representing a "page"
-                    // 3. render page 1 and allow for going to next page with arg
-                    // Example: /areas <page_number>
-                    // Output:
-                    //      PRIDE AREAS in WORLD
-                    //      Page 1 of 10
-                    //      AREA NAME ---- LOCATION
-                    // Future: /areas <page_number> <world_name>
-                    
-                    Map<Integer, ArrayList<String>> pages = new HashMap<Integer, ArrayList<String>>();
+                    Map<Integer, ArrayList<TextComponent>> pages = new HashMap<Integer, ArrayList<TextComponent>>();
+                    ArrayList<TextComponent> page = new ArrayList<TextComponent>();
                     Integer pageIndex = 0;
-                    ArrayList<String> page = new ArrayList<String>();
 
-                    for (String areaName: prideAreas.keySet()) {
+                    for (String areaName: sortedPrideAreaNames) {
                         Map<String, Double> prideArea = prideAreas.get(areaName);
 
                         if (page.size() >= 8) {
                             pages.put(pageIndex++, page);
-                            page = new ArrayList<String>();
+                            page = new ArrayList<TextComponent>();
                         }
 
                         BlockPos areaLocation = new BlockPos(prideArea.get("x"), prideArea.get("y"), prideArea.get("z"));
@@ -150,7 +149,8 @@ public class PrideCommandExecutor {
                         String diffString = String.format("%.2f", totalDiff);
                         String message = areaName + " " + diffString + " blocks away";
 
-                        page.add(message);
+                        StringTextComponent pageComponent = new StringTextComponent(message);
+                        page.add(pageComponent);
                     }
 
                     if (page.size() > 0) {
@@ -171,10 +171,9 @@ public class PrideCommandExecutor {
                     StringTextComponent titleComponent = new StringTextComponent("✿  Pride areas page " + humanPageNumber + " of " + pages.size());
                     player.addChatMessage(titleComponent, false);
 
-                    ArrayList<String> pageToSend = pages.get(pageNumber);
-                    for (String message : pageToSend) {
-                        StringTextComponent component = new StringTextComponent(message);
-                        player.addChatMessage(component, false);
+                    ArrayList<TextComponent> pageToSend = pages.get(pageNumber);
+                    for (TextComponent pageToSendComponent : pageToSend) {
+                        player.addChatMessage(pageToSendComponent, false);
                     }
 
                     return 1;
