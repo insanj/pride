@@ -137,7 +137,15 @@ public class PrideCommandExecutor {
 
                     BlockPos playerLocation = player.getBlockPos();
                     List<String> sortedPrideAreaNames = new ArrayList<>(prideAreas.keySet());
-                    Collections.sort(sortedPrideAreaNames);
+
+                    Comparator<String> caseInsensitiveComparator = new Comparator<String>() {
+                        @Override
+                        public int compare(String s1, String s2) {
+                            return s1.toLowerCase().compareTo(s2.toLowerCase());
+                        }
+                    };
+                    
+                    Collections.sort(sortedPrideAreaNames, caseInsensitiveComparator);
 
                     Map<Integer, ArrayList<TextComponent>> pages = new HashMap<Integer, ArrayList<TextComponent>>();
                     ArrayList<TextComponent> page = new ArrayList<TextComponent>();
@@ -152,11 +160,8 @@ public class PrideCommandExecutor {
                         }
 
                         BlockPos areaLocation = new BlockPos(prideArea.get("x"), prideArea.get("y"), prideArea.get("z"));
-                        double xDiff = Math.abs(areaLocation.getX() - playerLocation.getX());
-                        double yDiff = Math.abs(areaLocation.getY() - playerLocation.getY());
-                        double zDiff = Math.abs(areaLocation.getZ() - playerLocation.getZ());
-                        double totalDiff = Math.abs(xDiff + zDiff + yDiff);
 
+                        double totalDiff = PrideCommandExecutor.distanceBetween(areaLocation, playerLocation);
                         String diffString = String.format("%.2f", totalDiff);
 
                         String areaDescription = String.format("x: %d, y: %d, z: %d", (Integer)areaLocation.getX(), (Integer)areaLocation.getY(), (Integer)areaLocation.getZ());
@@ -175,7 +180,6 @@ public class PrideCommandExecutor {
                     // get page number from arguments
                     int humanPageNumber = IntegerArgumentType.getInteger(context, "pageNumber");
                     Integer pageNumber = humanPageNumber - 1;
-                    System.out.println("Total pages = " + pages.size() + " Getting pageNumber = " + pageNumber);
 
                     if (pageNumber >= pages.size()) {
                         TextComponent message = new PrideTextComponentBuilder("Page not found. There are only " + pages.size() + " pages available.").color(TextFormat.RED).build();
@@ -194,6 +198,13 @@ public class PrideCommandExecutor {
                     return 1;
                 }))
         ));
+    }
+
+    private static double distanceBetween(BlockPos p1, BlockPos p2) {
+        double xDiff = Math.abs(p1.getX() - p2.getX());
+        double yDiff = Math.abs(p1.getY() - p2.getY());
+        double zDiff = Math.abs(p1.getZ() - p2.getZ());
+        return Math.abs(xDiff + zDiff + yDiff);
     }
 
     private void registerNearbyCommand() {
@@ -221,29 +232,25 @@ public class PrideCommandExecutor {
                             BlockPos p1 = new BlockPos(e1.getValue().get("x"), e1.getValue().get("y"), e1.getValue().get("z"));
                             BlockPos p2 = new BlockPos(e2.getValue().get("x"), e2.getValue().get("y"), e2.getValue().get("z"));
 
-                            double xDiff = Math.abs(p1.getX() - p2.getX());
-                            double yDiff = Math.abs(p1.getY() - p2.getY());
-                            double zDiff = Math.abs(p1.getZ() - p2.getZ());
-                            int totalDiff = (int)Math.floor(Math.abs(xDiff + zDiff + yDiff));
-                            return totalDiff;
-                        }
+                            double d1 = PrideCommandExecutor.distanceBetween(p1, playerLocation);
+                            double d2 = PrideCommandExecutor.distanceBetween(p2, playerLocation);
 
+                            return (int)(d1 - d2);
+                        }
                     };
                     
                     List<Entry<String, Map<String, Double>>> listOfEntries = new ArrayList<Entry<String, Map<String, Double>>>(entries);
                     Collections.sort(listOfEntries, valueComparator);
 
                     LinkedHashMap<String, Map<String, Double>> sortedByValue = new LinkedHashMap<String, Map<String, Double>>(listOfEntries.size());
-                    for(Entry<String, Map<String, Double>> entry : listOfEntries){
-                        sortedByValue.put(entry.getKey(), entry.getValue());
-                    }
-                    
+
                     Map<Integer, ArrayList<TextComponent>> pages = new HashMap<Integer, ArrayList<TextComponent>>();
                     ArrayList<TextComponent> page = new ArrayList<TextComponent>();
                     Integer pageIndex = 0;
 
-                    for (String areaName: sortedByValue.keySet()) {
-                        Map<String, Double> prideArea = prideAreas.get(areaName);
+                    for (Entry<String, Map<String, Double>> entry : listOfEntries) {
+                        String areaName = entry.getKey();
+                        Map<String, Double> prideArea = entry.getValue();
 
                         if (page.size() >= 8) {
                             pages.put(pageIndex++, page);
@@ -251,12 +258,9 @@ public class PrideCommandExecutor {
                         }
 
                         BlockPos areaLocation = new BlockPos(prideArea.get("x"), prideArea.get("y"), prideArea.get("z"));
-                        double xDiff = Math.abs(areaLocation.getX() - playerLocation.getX());
-                        double yDiff = Math.abs(areaLocation.getY() - playerLocation.getY());
-                        double zDiff = Math.abs(areaLocation.getZ() - playerLocation.getZ());
-                        double totalDiff = Math.abs(xDiff + zDiff + yDiff);
+                        double diff = PrideCommandExecutor.distanceBetween(areaLocation, playerLocation);
 
-                        String diffString = String.format("%.2f", totalDiff);
+                        String diffString = String.format("%.2f", diff);
 
                         String areaDescription = String.format("x: %d, y: %d, z: %d", (Integer)areaLocation.getX(), (Integer)areaLocation.getY(), (Integer)areaLocation.getZ());
 
@@ -274,7 +278,6 @@ public class PrideCommandExecutor {
                     // get page number from arguments
                     int humanPageNumber = IntegerArgumentType.getInteger(context, "pageNumber");
                     Integer pageNumber = humanPageNumber - 1;
-                    System.out.println("Total pages = " + pages.size() + " Getting pageNumber = " + pageNumber);
 
                     if (pageNumber >= pages.size()) {
                         TextComponent message = new PrideTextComponentBuilder("Page not found. There are only " + pages.size() + " pages available.").color(TextFormat.RED).build();
@@ -282,7 +285,7 @@ public class PrideCommandExecutor {
                         return 1;
                     }
                     
-                    TextComponent titleComponent = new PrideTextComponentBuilder("✿  Pride areas page " + humanPageNumber + " of " + pages.size()).color(TextFormat.BLUE).build();
+                    TextComponent titleComponent = new PrideTextComponentBuilder("✿  Pride nearby page " + humanPageNumber + " of " + pages.size()).color(TextFormat.BLUE).build();
                     player.addChatMessage(titleComponent, false);
 
                     ArrayList<TextComponent> pageToSend = pages.get(pageNumber);

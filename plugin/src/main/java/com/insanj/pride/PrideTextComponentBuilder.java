@@ -79,6 +79,13 @@ public class PrideTextComponentBuilder {
     public PrideTextComponentBuilder(String message) {
       this.underlyingTextComponent = new StringTextComponent(message);
       this.underlyingStyle = new Style();
+
+      setupDefaults();
+    }
+
+    public void setupDefaults() {
+        this.color(TextFormat.WHITE);
+        this.bold(false);
     }
 
     public PrideTextComponentBuilder color(TextFormat c) {
