@@ -6,10 +6,18 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.registry.CommandRegistry;
@@ -82,6 +90,7 @@ public class PrideCommandExecutor {
     public void register() {
         registerPrideCommand();
         registerAreasCommand();
+        registerNearbyCommand();
         registerSettleCommand();
         registerAbandonCommand();
         registerCompassCommand();
@@ -96,6 +105,7 @@ public class PrideCommandExecutor {
                     ArrayList<TextComponent> components = new ArrayList<TextComponent>();
                     components.add(new StringTextComponent("Available Pride commands:"));
                     components.add(new StringTextComponent("/compass <area_name>"));
+                    components.add(new StringTextComponent("/nearby <area_name>"));
                     components.add(new StringTextComponent("/areas <page_number>"));
                     components.add(new StringTextComponent("/settle <area_name>"));
                     components.add(new StringTextComponent("/abandon <area_name>"));
@@ -134,6 +144,105 @@ public class PrideCommandExecutor {
                     Integer pageIndex = 0;
 
                     for (String areaName: sortedPrideAreaNames) {
+                        Map<String, Double> prideArea = prideAreas.get(areaName);
+
+                        if (page.size() >= 8) {
+                            pages.put(pageIndex++, page);
+                            page = new ArrayList<TextComponent>();
+                        }
+
+                        BlockPos areaLocation = new BlockPos(prideArea.get("x"), prideArea.get("y"), prideArea.get("z"));
+                        double xDiff = Math.abs(areaLocation.getX() - playerLocation.getX());
+                        double yDiff = Math.abs(areaLocation.getY() - playerLocation.getY());
+                        double zDiff = Math.abs(areaLocation.getZ() - playerLocation.getZ());
+                        double totalDiff = Math.abs(xDiff + zDiff + yDiff);
+
+                        String diffString = String.format("%.2f", totalDiff);
+
+                        String areaDescription = String.format("x: %d, y: %d, z: %d", (Integer)areaLocation.getX(), (Integer)areaLocation.getY(), (Integer)areaLocation.getZ());
+
+                        TextComponent hoverComponent = new PrideTextComponentBuilder(areaDescription).build();
+                        TextComponent areaComponent = new PrideTextComponentBuilder(areaName).color(TextFormat.BLUE).bold(true).hover(hoverComponent).build();
+                        TextComponent distComponent = new PrideTextComponentBuilder(" " + diffString + " blocks away").build();
+                        TextComponent pageComponent = areaComponent.append(distComponent);
+                        page.add(pageComponent);
+                    }
+
+                    if (page.size() > 0) {
+                        pages.put(pageIndex, page); // pick up any items in last page < 8
+                    }
+
+                    // get page number from arguments
+                    int humanPageNumber = IntegerArgumentType.getInteger(context, "pageNumber");
+                    Integer pageNumber = humanPageNumber - 1;
+                    System.out.println("Total pages = " + pages.size() + " Getting pageNumber = " + pageNumber);
+
+                    if (pageNumber >= pages.size()) {
+                        TextComponent message = new PrideTextComponentBuilder("Page not found. There are only " + pages.size() + " pages available.").color(TextFormat.RED).build();
+                        player.addChatMessage(message, false);
+                        return 1;
+                    }
+                    
+                    TextComponent titleComponent = new PrideTextComponentBuilder("✿  Pride areas page " + humanPageNumber + " of " + pages.size()).color(TextFormat.BLUE).build();
+                    player.addChatMessage(titleComponent, false);
+
+                    ArrayList<TextComponent> pageToSend = pages.get(pageNumber);
+                    for (TextComponent pageToSendComponent : pageToSend) {
+                        player.addChatMessage(pageToSendComponent, false);
+                    }
+
+                    return 1;
+                }))
+        ));
+    }
+
+    private void registerNearbyCommand() {
+        CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
+            ServerCommandManager.literal("nearby")
+                .then(ServerCommandManager.argument("pageNumber", IntegerArgumentType.integer())
+                .executes(context -> {
+                    ServerWorld world = context.getSource().getWorld();
+                    PridePersistentState persis = PridePersistentState.get(world);
+                    ServerPlayerEntity player = context.getSource().getPlayer();
+                    Map<String, Map<String, Double>> prideAreas = persis.getPrideAreas(world);
+
+                    if (prideAreas == null) {
+                        StringTextComponent component = new StringTextComponent("No Pride areas found :(");
+                        player.addChatMessage(component, false);
+                        return 1;
+                    }
+
+                    BlockPos playerLocation = player.getBlockPos();
+
+                    Set<Entry<String, Map<String, Double>>> entries = prideAreas.entrySet();
+                    Comparator<Entry<String, Map<String, Double>>> valueComparator = new Comparator<Entry<String, Map<String, Double>>>() {
+                        @Override
+                        public int compare(Entry<String, Map<String, Double>> e1, Entry<String, Map<String, Double>> e2) {
+                            BlockPos p1 = new BlockPos(e1.getValue().get("x"), e1.getValue().get("y"), e1.getValue().get("z"));
+                            BlockPos p2 = new BlockPos(e2.getValue().get("x"), e2.getValue().get("y"), e2.getValue().get("z"));
+
+                            double xDiff = Math.abs(p1.getX() - p2.getX());
+                            double yDiff = Math.abs(p1.getY() - p2.getY());
+                            double zDiff = Math.abs(p1.getZ() - p2.getZ());
+                            int totalDiff = (int)Math.floor(Math.abs(xDiff + zDiff + yDiff));
+                            return totalDiff;
+                        }
+
+                    };
+                    
+                    List<Entry<String, Map<String, Double>>> listOfEntries = new ArrayList<Entry<String, Map<String, Double>>>(entries);
+                    Collections.sort(listOfEntries, valueComparator);
+
+                    LinkedHashMap<String, Map<String, Double>> sortedByValue = new LinkedHashMap<String, Map<String, Double>>(listOfEntries.size());
+                    for(Entry<String, Map<String, Double>> entry : listOfEntries){
+                        sortedByValue.put(entry.getKey(), entry.getValue());
+                    }
+                    
+                    Map<Integer, ArrayList<TextComponent>> pages = new HashMap<Integer, ArrayList<TextComponent>>();
+                    ArrayList<TextComponent> page = new ArrayList<TextComponent>();
+                    Integer pageIndex = 0;
+
+                    for (String areaName: sortedByValue.keySet()) {
                         Map<String, Double> prideArea = prideAreas.get(areaName);
 
                         if (page.size() >= 8) {
