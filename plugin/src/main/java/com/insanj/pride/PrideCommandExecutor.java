@@ -65,6 +65,7 @@ import net.minecraft.text.Style;
 import net.minecraft.text.TextComponent;
 import net.minecraft.text.TextFormat;
 import net.minecraft.text.TranslatableTextComponent;
+import net.minecraft.text.event.HoverEvent;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -147,9 +148,13 @@ public class PrideCommandExecutor {
                         double totalDiff = Math.abs(xDiff + zDiff + yDiff);
 
                         String diffString = String.format("%.2f", totalDiff);
-                        String message = areaName + " " + diffString + " blocks away";
 
-                        StringTextComponent pageComponent = new StringTextComponent(message);
+                        String areaDescription = String.format("x: %d, y: %d, z: %d", (Integer)areaLocation.getX(), (Integer)areaLocation.getY(), (Integer)areaLocation.getZ());
+
+                        TextComponent hoverComponent = new PrideTextComponentBuilder(areaDescription).build();
+                        TextComponent areaComponent = new PrideTextComponentBuilder(areaName).color(TextFormat.BLUE).bold(true).hover(hoverComponent).build();
+                        TextComponent distComponent = new PrideTextComponentBuilder(" " + diffString + " blocks away").build();
+                        TextComponent pageComponent = areaComponent.append(distComponent);
                         page.add(pageComponent);
                     }
 
@@ -163,12 +168,12 @@ public class PrideCommandExecutor {
                     System.out.println("Total pages = " + pages.size() + " Getting pageNumber = " + pageNumber);
 
                     if (pageNumber >= pages.size()) {
-                        StringTextComponent message = new StringTextComponent("Page not found. There are only " + pages.size() + " pages available.");
+                        TextComponent message = new PrideTextComponentBuilder("Page not found. There are only " + pages.size() + " pages available.").color(TextFormat.RED).build();
                         player.addChatMessage(message, false);
                         return 1;
                     }
                     
-                    StringTextComponent titleComponent = new StringTextComponent("✿  Pride areas page " + humanPageNumber + " of " + pages.size());
+                    TextComponent titleComponent = new PrideTextComponentBuilder("✿  Pride areas page " + humanPageNumber + " of " + pages.size()).color(TextFormat.BLUE).build();
                     player.addChatMessage(titleComponent, false);
 
                     ArrayList<TextComponent> pageToSend = pages.get(pageNumber);
@@ -198,8 +203,7 @@ public class PrideCommandExecutor {
                         PridePersistentState persis = PridePersistentState.get(world);
                         persis.setPrideArea(world, areaName, area);
 
-                        StringTextComponent message = new StringTextComponent("Founded " + areaName + "!");
-                        message.setStyle(new Style().setColor(TextFormat.GREEN));
+                        TextComponent message = new PrideTextComponentBuilder("Founded " + areaName + "!").color(TextFormat.GREEN).build();
                         context.getSource().getPlayer().addChatMessage(message, false);
                         return 1;
                     }))
@@ -217,8 +221,7 @@ public class PrideCommandExecutor {
                         PridePersistentState persis = PridePersistentState.get(world);
                         persis.removePrideArea(world, areaName);
 
-                        StringTextComponent message = new StringTextComponent("Removed " + areaName + "!");
-                        message.setStyle(new Style().setColor(TextFormat.GREEN));
+                        TextComponent message = new PrideTextComponentBuilder("Removed " + areaName + "!").color(TextFormat.GREEN).build();
                         context.getSource().getPlayer().addChatMessage(message, false);
                         return 1;
                     }))
@@ -242,9 +245,15 @@ public class PrideCommandExecutor {
                     PlayerSpawnPositionS2CPacket packet = new PlayerSpawnPositionS2CPacket(pos);
                     player.networkHandler.sendPacket(packet);
 
-                    StringTextComponent message = new StringTextComponent("Compass pointed towards " + areaName + "!");
-                    message.setStyle(new Style().setColor(TextFormat.GREEN));
-                    context.getSource().getPlayer().addChatMessage(message, false);
+                    String areaDescription = String.format("x: %d, y: %d, z: %d", (Integer)pos.getX(), (Integer)pos.getY(), (Integer)pos.getZ());
+                    
+                    TextComponent startTextComponent = new PrideTextComponentBuilder("Compass pointed towards ").color(TextFormat.GREEN).build();
+                    TextComponent areaHoverTextComponent = new PrideTextComponentBuilder(areaDescription).build();
+                    TextComponent areaTextComponent = new PrideTextComponentBuilder(areaName).color(TextFormat.GOLD).bold(true).hover(areaHoverTextComponent).build();
+                    TextComponent endTextComponent = new PrideTextComponentBuilder("!").build();
+
+                    TextComponent concatComponent = startTextComponent.append(areaTextComponent).append(endTextComponent);
+                    context.getSource().getPlayer().addChatMessage(concatComponent, false);
                     return 1;
                 }))
         ));

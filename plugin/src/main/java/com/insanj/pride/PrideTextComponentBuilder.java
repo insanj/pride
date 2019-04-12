@@ -64,6 +64,7 @@ import net.minecraft.text.Style;
 import net.minecraft.text.TextComponent;
 import net.minecraft.text.TextFormat;
 import net.minecraft.text.TranslatableTextComponent;
+import net.minecraft.text.event.HoverEvent;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -72,9 +73,32 @@ import com.google.gson.Gson;
 import com.google.common.collect.Multimap;
 
 public class PrideTextComponentBuilder {
-    private final PrideConfig config;
-    public PrideTextComponentBuilder(PrideConfig config) {
-        this.config = config;
+    private StringTextComponent underlyingTextComponent;
+    private Style underlyingStyle;
+
+    public PrideTextComponentBuilder(String message) {
+      this.underlyingTextComponent = new StringTextComponent(message);
+      this.underlyingStyle = new Style();
     }
 
+    public PrideTextComponentBuilder color(TextFormat c) {
+        this.underlyingStyle.setColor(c);
+        return this;
+    }
+
+    public PrideTextComponentBuilder bold(boolean b) {
+        this.underlyingStyle.setBold(b);
+        return this;
+    }
+
+    public PrideTextComponentBuilder hover(TextComponent c) {
+        HoverEvent event = new HoverEvent(HoverEvent.Action.SHOW_TEXT, c);
+        this.underlyingStyle.setHoverEvent(event);
+        return this;
+    }
+
+    public TextComponent build() {
+        this.underlyingTextComponent.setStyle(this.underlyingStyle);
+        return this.underlyingTextComponent;
+    }
 }

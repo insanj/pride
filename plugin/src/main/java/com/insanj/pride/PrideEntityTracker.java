@@ -162,63 +162,31 @@ public class PrideEntityTracker {
       }
 
       private void sendPlayerMessage(ServerPlayerEntity player, String areaName) {
-        StringTextComponent component = new StringTextComponent(areaName);
-
-        Style style = new Style();
-        style.setColor(TextFormat.GOLD);
-        style.setBold(true);
-        component.setStyle(style);
-
+        TextComponent component = new PrideTextComponentBuilder(areaName).color(TextFormat.GOLD).bold(true).build();
         player.addChatMessage(component, true);
       }
 
       private void sendServerMessage(MinecraftServer server, ServerPlayerEntity player, String areaName, String areaDescription) {
+
         String playerName = player.getName().getString();
-        StringTextComponent playerComponent = new StringTextComponent(playerName);
-       
-        Style playerComponentStyle = new Style();
-        playerComponentStyle.setColor(TextFormat.BLUE);
-
-        //String entityJSONString = String.format("{\"name\":\"%s\", \"type\":\"Player\", \"uuid\":\"%s\"}", playerName, player.getUuid().toString());
-        // TextComponent entityTextComponent = TextComponent.Serializer.fromLenientJsonString(entityJSONString);
-        
-        // EntitySelector selector = new EntitySelector();
-        // selector.playerName = playerName;
-        // selector.entityId = player.getUuid();
-
-        // 1 selector 2 ?? 3 path
-        // TextComponent entityTextComponent = new NbtTextComponent.EntityNbtTextComponent(playerName, true, player.getUuid().toString());
-
         BlockPos playerPos = player.getBlockPos();
+          
+        // 1 build player name component (includes hover event)
         String playerHoverDescriptionString = String.format("Entered at location, x: %d, y: %d, z: %d", playerPos.getX(), playerPos.getY(), playerPos.getZ());
-        StringTextComponent playerHoverDescriptionComponent = new StringTextComponent(playerHoverDescriptionString);
-        HoverEvent playerHoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, playerHoverDescriptionComponent);
-        playerComponentStyle.setHoverEvent(playerHoverEvent);
+        TextComponent playerHoverComponent = new PrideTextComponentBuilder(playerHoverDescriptionString).build();
+        TextComponent playerComponent = new PrideTextComponentBuilder(playerName).color(TextFormat.BLUE).hover(playerHoverComponent).build();
 
-        playerComponent.setStyle(playerComponentStyle);
+        // 2 build filler text "is entering" which has no styling
+        TextComponent fillerComponent = new PrideTextComponentBuilder(" is entering ").color(TextFormat.WHITE).build();
+  
+        // 3 build area name component (includes hover event)
+        TextComponent areaHoverComponent = new PrideTextComponentBuilder(areaDescription).build();
+        TextComponent areaComponent = new PrideTextComponentBuilder(areaName).color(TextFormat.GOLD).bold(true).hover(areaHoverComponent).build();
 
-        StringTextComponent fillerComponent = new StringTextComponent(" is entering ");
-        Style fillerComponentStyle = new Style();
-        fillerComponentStyle.setColor(TextFormat.WHITE);
-        fillerComponent.setStyle(fillerComponentStyle);
+        // 4 build punctuation / exclamation mark at end of sentence (without formatting)
+        TextComponent punctuationComponent = new PrideTextComponentBuilder("!").color(TextFormat.WHITE).bold(true).build();
 
-        StringTextComponent areaComponent = new StringTextComponent(areaName);
-        Style areaComponentStyle = new Style();
-        areaComponentStyle.setColor(TextFormat.GOLD);
-        areaComponentStyle.setBold(true);
-
-        StringTextComponent areaDescriptionComponent = new StringTextComponent(areaDescription);
-        HoverEvent areaHoverEvent = new HoverEvent(HoverEvent.Action.SHOW_TEXT, areaDescriptionComponent);
-        areaComponentStyle.setHoverEvent(areaHoverEvent);
-
-        areaComponent.setStyle(areaComponentStyle);
-
-        StringTextComponent punctuationComponent = new StringTextComponent("!");
-        Style punctuationComponentStyle = new Style();
-        punctuationComponentStyle.setColor(TextFormat.WHITE);
-        punctuationComponentStyle.setBold(false);
-        punctuationComponent.setStyle(punctuationComponentStyle);
-
+        // 5 combine all components and send the message to everyone!
         TextComponent concatComponent = playerComponent.append(fillerComponent).append(areaComponent).append(punctuationComponent);
 
         Set<ServerPlayerEntity> players = (Set<ServerPlayerEntity>)PlayerStream.all(server).collect(Collectors.toSet());
