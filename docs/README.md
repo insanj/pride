@@ -38,7 +38,7 @@
   </a>
   
   <a href="https://fabricmc.net/use">
-    <img src="https://img.shields.io/badge/fabric--loader-0.3.7.109-beige.svg" />
+    <img src="https://img.shields.io/badge/fabric--loader-0.3.7.109-orange.svg" />
   </a>
 </p>
 
