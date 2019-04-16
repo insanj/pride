@@ -427,7 +427,9 @@ public class PrideCommandExecutor {
 
                     PridePersistentState persis = PridePersistentState.get(world);
                     Map<String, Map<String, Double>> prideAreas = persis.getPrideAreas(world);
-                    Map<String, Map<String, Double>> activatedAreas = PrideBlockPosUtil.prideAreasInsidePosThreshold(prideAreas, playerLocation, 50.0);
+
+                    double areaDetectionDistance = config.activationDistance;
+                    Map<String, Map<String, Double>> activatedAreas = PrideBlockPosUtil.prideAreasInsidePosThreshold(prideAreas, playerLocation, areaDetectionDistance);
 
                     if (activatedAreas.size() <= 0) {
                         TextComponent startTextComponent = new PrideTextComponentBuilder("You are not in any Pride areas!").build();

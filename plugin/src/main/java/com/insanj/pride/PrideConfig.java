@@ -43,8 +43,9 @@ public class PrideConfig {
       return config;
     }
 
-    public boolean showHud = true;
-    public int hudColor = 0xeeeeee;
+    // how many blocks away in all x/y/z directions required to activate pride area
+    public double activationDistance = 50.0;
+    public int bottleneckLimit = 100;
 
     public void saveConfig(String configPath) {
         File configFile = new File(configPath);

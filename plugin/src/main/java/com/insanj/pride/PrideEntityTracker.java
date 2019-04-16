@@ -64,17 +64,15 @@ public class PrideEntityTracker {
   private final PrideConfig config;
 
   // arbitrary bottleneck to prevent running the tracker every single tick (more than once per second!)
-  private final int superLazyBottleneckLimit = 50;
+  private final int superLazyBottleneckLimit;
   private int superLazyBottleneck = 0;
-
-  // how many blocks away in all x/y/z directions required to activate pride area
-  private final double areaDetectionDistance = 50.0;
 
   // when a player is in a pride area, it will be added to the ArrayList keyed by their name
   private Map<String, ArrayList<String>> currentlyActivatedAreas = new HashMap();
 
   public PrideEntityTracker(PrideConfig config) {
     this.config = config;
+    this.superLazyBottleneckLimit = config.bottleneckLimit;
   }
 
   public void register() {
@@ -101,6 +99,8 @@ public class PrideEntityTracker {
   // async/thread-based function to run calculations for pride areas off main
   public void calculateActivatedPrideAreasForPlayer(MinecraftServer server, ServerWorld world, ServerPlayerEntity player) {
     PrideEntityTracker tracker = this;
+    double areaDetectionDistance = config.activationDistance;
+
     new Thread(new Runnable() { 
       public void run() { 
         String playerName = player.getName().getString();
@@ -115,6 +115,7 @@ public class PrideEntityTracker {
         }
 
         // System.out.println(String.format("looping through %s in %s seeing if %s is in range of something", areas.toString(), world.toString(), pos.toString()));
+
 
         // loop through all areas in world
         for (String areaName : areas.keySet()) {
@@ -150,12 +151,13 @@ public class PrideEntityTracker {
             }
           }
 
-          // stop activating...
-          else {
+          // only stop tracking when you've gone the detection distance AWAY from the area (so if it's 50, 100 blocks away)
+          else if (distanceBetween > (areaDetectionDistance * 2.0)) {
+            // stop activating...
             if (tracker.currentlyActivatedAreas.get(playerName) != null && tracker.currentlyActivatedAreas.get(playerName).contains(areaName)) {
-              ArrayList<String> playerActivatedAreas = tracker.currentlyActivatedAreas.get(playerName);
-              playerActivatedAreas.remove(areaName);
-              tracker.currentlyActivatedAreas.put(playerName, playerActivatedAreas);
+                ArrayList<String> playerActivatedAreas = tracker.currentlyActivatedAreas.get(playerName);
+                playerActivatedAreas.remove(areaName);
+                tracker.currentlyActivatedAreas.put(playerName, playerActivatedAreas);
             }
           }
         }
