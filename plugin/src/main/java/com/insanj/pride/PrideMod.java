@@ -12,7 +12,7 @@ import net.fabricmc.fabric.api.registry.CommandRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 
-import net.minecraft.server.command.ServerCommandManager;
+import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.StringTextComponent;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;

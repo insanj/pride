@@ -15,7 +15,7 @@ import net.fabricmc.fabric.api.registry.CommandRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 
-import net.minecraft.server.command.ServerCommandManager;
+import net.minecraft.server.command.CommandManager;
 import net.minecraft.text.StringTextComponent;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -23,7 +23,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.block.BlockItem;
 import net.minecraft.block.Block;
 import net.minecraft.block.Material;
 import net.minecraft.inventory.Inventory;
@@ -41,10 +40,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.block.BlockItem;
+
 import net.minecraft.item.MiningToolItem;
 import net.minecraft.server.world.BlockAction;
 import net.minecraft.sound.SoundEvents;

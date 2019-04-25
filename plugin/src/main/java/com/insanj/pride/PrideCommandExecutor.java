@@ -24,7 +24,9 @@ import net.fabricmc.fabric.api.registry.CommandRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 
-import net.minecraft.server.command.ServerCommandManager;
+import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.command.ServerCommandSource;
+
 import net.minecraft.text.StringTextComponent;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -32,7 +34,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.block.BlockItem;
 import net.minecraft.block.Block;
 import net.minecraft.block.Material;
 import net.minecraft.inventory.Inventory;
@@ -50,10 +51,6 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.block.BlockItem;
 import net.minecraft.item.MiningToolItem;
 import net.minecraft.server.world.BlockAction;
 import net.minecraft.sound.SoundEvents;
@@ -75,6 +72,7 @@ import net.minecraft.text.TextFormat;
 import net.minecraft.text.TranslatableTextComponent;
 import net.minecraft.text.event.HoverEvent;
 
+import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 
@@ -102,14 +100,15 @@ public class PrideCommandExecutor {
 
     private void registerPrideCommand() {
       CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
-            ServerCommandManager.literal("pride")
+            CommandManager.literal("pride")
                 .executes(context -> {
                     ServerPlayerEntity player = context.getSource().getPlayer();
 
                     ArrayList<TextComponent> components = new ArrayList<TextComponent>();
-                    components.add(new StringTextComponent("Thanks for using Pride v0.5.3! Commands:"));
+                    components.add(new StringTextComponent("Thanks for using Pride v0.5.5! Commands:"));
                     components.add(new StringTextComponent("/compass <area_name> -- Point compass towards an area"));
-                    components.add(new StringTextComponent("/nearby <area_name> -- List nearby areas"));
+                    components.add(new StringTextComponent("/nearby -- List nearby areas"));
+                    components.add(new StringTextComponent("/nearby page <page_number> -- List nearby areas by page"));
                     components.add(new StringTextComponent("/areas <page_number> -- List areas alphabetically"));
                     components.add(new StringTextComponent("/settle <area_name> -- Create a new area"));
                     components.add(new StringTextComponent("/abandon <area_name> -- Remove an existing area"));
@@ -129,8 +128,8 @@ public class PrideCommandExecutor {
 
     private void registerAreasCommand() {
         CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
-            ServerCommandManager.literal("areas")
-                .then(ServerCommandManager.argument("pageNumber", IntegerArgumentType.integer())
+            CommandManager.literal("areas")
+                .then(CommandManager.argument("pageNumber", IntegerArgumentType.integer())
                 .executes(context -> {
                     ServerWorld world = context.getSource().getWorld();
                     PridePersistentState persis = PridePersistentState.get(world);
@@ -215,101 +214,117 @@ public class PrideCommandExecutor {
         return Math.abs(xDiff + zDiff + yDiff);
     }
 
+    private int nearbyCommandRuntime(CommandContext<ServerCommandSource> context, boolean hasParams) {
+        ServerWorld world = context.getSource().getWorld();
+        PridePersistentState persis = PridePersistentState.get(world);
+        ServerPlayerEntity player;
+        try {
+            player  = context.getSource().getPlayer();
+        } catch (Exception e) {
+            return 1;
+        }
+        Map<String, Map<String, Double>> prideAreas = persis.getPrideAreas(world);
+
+        if (prideAreas == null) {
+            StringTextComponent component = new StringTextComponent("No Pride areas found :(");
+            player.addChatMessage(component, false);
+            return 1;
+        }
+
+        BlockPos playerLocation = player.getBlockPos();
+
+        Set<Entry<String, Map<String, Double>>> entries = prideAreas.entrySet();
+        Comparator<Entry<String, Map<String, Double>>> valueComparator = new Comparator<Entry<String, Map<String, Double>>>() {
+            @Override
+            public int compare(Entry<String, Map<String, Double>> e1, Entry<String, Map<String, Double>> e2) {
+                BlockPos p1 = new BlockPos(e1.getValue().get("x"), e1.getValue().get("y"), e1.getValue().get("z"));
+                BlockPos p2 = new BlockPos(e2.getValue().get("x"), e2.getValue().get("y"), e2.getValue().get("z"));
+
+                double d1 = PrideCommandExecutor.distanceBetween(p1, playerLocation);
+                double d2 = PrideCommandExecutor.distanceBetween(p2, playerLocation);
+
+                return (int)(d1 - d2);
+            }
+        };
+        
+        List<Entry<String, Map<String, Double>>> listOfEntries = new ArrayList<Entry<String, Map<String, Double>>>(entries);
+        Collections.sort(listOfEntries, valueComparator);
+
+        LinkedHashMap<String, Map<String, Double>> sortedByValue = new LinkedHashMap<String, Map<String, Double>>(listOfEntries.size());
+
+        Map<Integer, ArrayList<TextComponent>> pages = new HashMap<Integer, ArrayList<TextComponent>>();
+        ArrayList<TextComponent> page = new ArrayList<TextComponent>();
+        Integer pageIndex = 0;
+
+        for (Entry<String, Map<String, Double>> entry : listOfEntries) {
+            String areaName = entry.getKey();
+            Map<String, Double> prideArea = entry.getValue();
+
+            if (page.size() >= 8) {
+                pages.put(pageIndex++, page);
+                page = new ArrayList<TextComponent>();
+            }
+
+            BlockPos areaLocation = new BlockPos(prideArea.get("x"), prideArea.get("y"), prideArea.get("z"));
+            double diff = PrideCommandExecutor.distanceBetween(areaLocation, playerLocation);
+
+            String diffString = String.format("%.2f", diff);
+
+            String areaDescription = String.format("x: %d, y: %d, z: %d", (Integer)areaLocation.getX(), (Integer)areaLocation.getY(), (Integer)areaLocation.getZ());
+
+            TextComponent hoverComponent = new PrideTextComponentBuilder(areaDescription).build();
+            TextComponent areaComponent = new PrideTextComponentBuilder(areaName).color(TextFormat.BLUE).bold(true).hover(hoverComponent).build();
+            TextComponent distComponent = new PrideTextComponentBuilder(" " + diffString + " blocks away").build();
+            TextComponent pageComponent = areaComponent.append(distComponent);
+            page.add(pageComponent);
+        }
+
+        if (page.size() > 0) {
+            pages.put(pageIndex, page); // pick up any items in last page < 8
+        }
+
+        // get page number from arguments
+        int humanPageNumber = hasParams == true ? IntegerArgumentType.getInteger(context, "pageNumber") : 1;
+        Integer pageNumber = humanPageNumber - 1;
+
+        if (pageNumber >= pages.size()) {
+            TextComponent message = new PrideTextComponentBuilder("Page not found. There are only " + pages.size() + " pages available.").color(TextFormat.RED).build();
+            player.addChatMessage(message, false);
+            return 1;
+        }
+        
+        TextComponent titleComponent = new PrideTextComponentBuilder("✿  Pride nearby page " + humanPageNumber + " of " + pages.size()).build();
+        player.addChatMessage(titleComponent, false);
+
+        ArrayList<TextComponent> pageToSend = pages.get(pageNumber);
+        for (TextComponent pageToSendComponent : pageToSend) {
+            player.addChatMessage(pageToSendComponent, false);
+        }
+
+        return 1;
+    }
+
     private void registerNearbyCommand() {
         CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
-            ServerCommandManager.literal("nearby")
-                .then(ServerCommandManager.argument("pageNumber", IntegerArgumentType.integer())
+            CommandManager.literal("nearby")
                 .executes(context -> {
-                    ServerWorld world = context.getSource().getWorld();
-                    PridePersistentState persis = PridePersistentState.get(world);
-                    ServerPlayerEntity player = context.getSource().getPlayer();
-                    Map<String, Map<String, Double>> prideAreas = persis.getPrideAreas(world);
+                    return nearbyCommandRuntime(context, false);
+                }))
+        );
 
-                    if (prideAreas == null) {
-                        StringTextComponent component = new StringTextComponent("No Pride areas found :(");
-                        player.addChatMessage(component, false);
-                        return 1;
-                    }
-
-                    BlockPos playerLocation = player.getBlockPos();
-
-                    Set<Entry<String, Map<String, Double>>> entries = prideAreas.entrySet();
-                    Comparator<Entry<String, Map<String, Double>>> valueComparator = new Comparator<Entry<String, Map<String, Double>>>() {
-                        @Override
-                        public int compare(Entry<String, Map<String, Double>> e1, Entry<String, Map<String, Double>> e2) {
-                            BlockPos p1 = new BlockPos(e1.getValue().get("x"), e1.getValue().get("y"), e1.getValue().get("z"));
-                            BlockPos p2 = new BlockPos(e2.getValue().get("x"), e2.getValue().get("y"), e2.getValue().get("z"));
-
-                            double d1 = PrideCommandExecutor.distanceBetween(p1, playerLocation);
-                            double d2 = PrideCommandExecutor.distanceBetween(p2, playerLocation);
-
-                            return (int)(d1 - d2);
-                        }
-                    };
-                    
-                    List<Entry<String, Map<String, Double>>> listOfEntries = new ArrayList<Entry<String, Map<String, Double>>>(entries);
-                    Collections.sort(listOfEntries, valueComparator);
-
-                    LinkedHashMap<String, Map<String, Double>> sortedByValue = new LinkedHashMap<String, Map<String, Double>>(listOfEntries.size());
-
-                    Map<Integer, ArrayList<TextComponent>> pages = new HashMap<Integer, ArrayList<TextComponent>>();
-                    ArrayList<TextComponent> page = new ArrayList<TextComponent>();
-                    Integer pageIndex = 0;
-
-                    for (Entry<String, Map<String, Double>> entry : listOfEntries) {
-                        String areaName = entry.getKey();
-                        Map<String, Double> prideArea = entry.getValue();
-
-                        if (page.size() >= 8) {
-                            pages.put(pageIndex++, page);
-                            page = new ArrayList<TextComponent>();
-                        }
-
-                        BlockPos areaLocation = new BlockPos(prideArea.get("x"), prideArea.get("y"), prideArea.get("z"));
-                        double diff = PrideCommandExecutor.distanceBetween(areaLocation, playerLocation);
-
-                        String diffString = String.format("%.2f", diff);
-
-                        String areaDescription = String.format("x: %d, y: %d, z: %d", (Integer)areaLocation.getX(), (Integer)areaLocation.getY(), (Integer)areaLocation.getZ());
-
-                        TextComponent hoverComponent = new PrideTextComponentBuilder(areaDescription).build();
-                        TextComponent areaComponent = new PrideTextComponentBuilder(areaName).color(TextFormat.BLUE).bold(true).hover(hoverComponent).build();
-                        TextComponent distComponent = new PrideTextComponentBuilder(" " + diffString + " blocks away").build();
-                        TextComponent pageComponent = areaComponent.append(distComponent);
-                        page.add(pageComponent);
-                    }
-
-                    if (page.size() > 0) {
-                        pages.put(pageIndex, page); // pick up any items in last page < 8
-                    }
-
-                    // get page number from arguments
-                    int humanPageNumber = IntegerArgumentType.getInteger(context, "pageNumber");
-                    Integer pageNumber = humanPageNumber - 1;
-
-                    if (pageNumber >= pages.size()) {
-                        TextComponent message = new PrideTextComponentBuilder("Page not found. There are only " + pages.size() + " pages available.").color(TextFormat.RED).build();
-                        player.addChatMessage(message, false);
-                        return 1;
-                    }
-                    
-                    TextComponent titleComponent = new PrideTextComponentBuilder("✿  Pride nearby page " + humanPageNumber + " of " + pages.size()).build();
-                    player.addChatMessage(titleComponent, false);
-
-                    ArrayList<TextComponent> pageToSend = pages.get(pageNumber);
-                    for (TextComponent pageToSendComponent : pageToSend) {
-                        player.addChatMessage(pageToSendComponent, false);
-                    }
-
-                    return 1;
+        CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
+            CommandManager.literal("nearbypage")
+                .then(CommandManager.argument("pageNumber", IntegerArgumentType.integer())
+                .executes(context -> {
+                    return nearbyCommandRuntime(context, true);
                 }))
         ));
     }
 
     private void registerSettleCommand() {
         CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
-                ServerCommandManager.literal("settle")
-                    .then(ServerCommandManager.argument("name", StringArgumentType.greedyString())
+                CommandManager.literal("settle")
+                    .then(CommandManager.argument("name", StringArgumentType.greedyString())
                     .executes(context -> {
                         ServerWorld world = context.getSource().getWorld();
                         String areaName = StringArgumentType.getString(context, "name");
@@ -332,8 +347,8 @@ public class PrideCommandExecutor {
 
     private void registerAbandonCommand() {
         CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
-                ServerCommandManager.literal("abandon")
-                    .then(ServerCommandManager.argument("name", StringArgumentType.greedyString())
+                CommandManager.literal("abandon")
+                    .then(CommandManager.argument("name", StringArgumentType.greedyString())
                     .executes(context -> {
                         ServerWorld world = context.getSource().getWorld();
                         String areaName = StringArgumentType.getString(context, "name");
@@ -350,8 +365,8 @@ public class PrideCommandExecutor {
 
     private void registerCompassCommand() {
         CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
-            ServerCommandManager.literal("compass")
-                .then(ServerCommandManager.argument("name", StringArgumentType.greedyString())
+            CommandManager.literal("compass")
+                .then(CommandManager.argument("name", StringArgumentType.greedyString())
                 .executes(context -> {
                     // translate the area name given in the command to the x/y/z coordinates for the pride area
                     ServerWorld world = context.getSource().getWorld();
@@ -382,8 +397,8 @@ public class PrideCommandExecutor {
 
     private void registerFarCommand() {
         CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
-            ServerCommandManager.literal("far")
-                .then(ServerCommandManager.argument("name", StringArgumentType.greedyString())
+            CommandManager.literal("far")
+                .then(CommandManager.argument("name", StringArgumentType.greedyString())
                 .executes(context -> {
                     ServerWorld world = context.getSource().getWorld();
                     String areaName = StringArgumentType.getString(context, "name");
@@ -419,7 +434,7 @@ public class PrideCommandExecutor {
 
     private void registerHereCommand() {
         CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
-            ServerCommandManager.literal("here")
+            CommandManager.literal("here")
                 .executes(context -> {
                     ServerWorld world = context.getSource().getWorld();
                     ServerPlayerEntity player = context.getSource().getPlayer();
@@ -472,7 +487,7 @@ public class PrideCommandExecutor {
 
     private void registerNorthCommand() {
         CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
-            ServerCommandManager.literal("north")
+            CommandManager.literal("north")
                 .executes(context -> {
                     ServerPlayerEntity player = context.getSource().getPlayer();
                     BlockPos playerLocation = player.getBlockPos();
@@ -490,8 +505,8 @@ public class PrideCommandExecutor {
 
     private void registerBetweenCommand() {
         CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
-            ServerCommandManager.literal("between")
-                .then(ServerCommandManager.argument("names", StringArgumentType.greedyString())
+            CommandManager.literal("between")
+                .then(CommandManager.argument("names", StringArgumentType.greedyString())
                 .executes(context -> {
                     ServerWorld world = context.getSource().getWorld();                    
                     PridePersistentState persis = PridePersistentState.get(world);

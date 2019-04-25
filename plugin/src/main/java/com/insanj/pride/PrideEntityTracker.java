@@ -38,7 +38,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.chunk.ChunkManager;
 import net.minecraft.world.chunk.ChunkPos;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandManager;
 import net.minecraft.text.StringTextComponent;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;

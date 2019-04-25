@@ -1,13 +1,48 @@
 {
+  "schemaVersion": 1,
   "id": "pride",
-  "name": "pride",
-  "description": "keep track of your playmates in minecraft\nSettle your current area to Pride\n/settle <name>\ntrigger:\ndescription: Toggle trigger setting for an area\nusage: |\nToggle trigger setting for an area\n/trigger <name>\nabandon:\ndescription: Abandon a given area in Pride\nusage: |\nAbandon a given area in Pride\n/abandon <name>\nhere:\ndescription: Show every Pride area where you currently are\nusage: |\nShow every Pride area where you currently are\n/here <optional:username>\nfar:\ndescription: Calculate how far away you are from a Pride area\nusage: |\nCalculate how far away you are from a Pride area\n/far <name>\nareas:\ndescription: Show the names of all the Pride areas and how far away they are\nusage: |\nShow the names of all the Pride areas and how far away they are\n/areas\nbetween:\ndescription: Calculate the distance between two pride areas (> 256 for Nether Portals)\nusage: |\nCalculate the distance between two pride areas (> 256 for Nether Portals)\n/between <name_one>,<name_two>\ncompass:\ndescription: Point your compass towards an area. Will reset to original spawn if no argument is given\nusage: |\nPoint your compass towards an area. Will reset to original spawn if no argument is given\n/compass <area>\nnorth:\ndescription: Point your compass towards true north. Will reset if any argument is given\nusage: |\nPoint your compass towards true north. Will reset if any argument is given\n/north <reset>",
   "version": "${version}",
-  "side": "server",
-  "initializers": [
-    "com.insanj.pride.PrideMod"
+
+  "name": "pride",
+  "icon": "assets/pride/icon.png",
+  "description": "keep track of your playmates in minecraft\nSettle your current area to Pride\n/settle <name>\ntrigger:\ndescription: Toggle trigger setting for an area\nusage: |\nToggle trigger setting for an area\n/trigger <name>\nabandon:\ndescription: Abandon a given area in Pride\nusage: |\nAbandon a given area in Pride\n/abandon <name>\nhere:\ndescription: Show every Pride area where you currently are\nusage: |\nShow every Pride area where you currently are\n/here <optional:username>\nfar:\ndescription: Calculate how far away you are from a Pride area\nusage: |\nCalculate how far away you are from a Pride area\n/far <name>\nareas:\ndescription: Show the names of all the Pride areas and how far away they are\nusage: |\nShow the names of all the Pride areas and how far away they are\n/areas\nbetween:\ndescription: Calculate the distance between two pride areas (> 256 for Nether Portals)\nusage: |\nCalculate the distance between two pride areas (> 256 for Nether Portals)\n/between <name_one>,<name_two>\ncompass:\ndescription: Point your compass towards an area. Will reset to original spawn if no argument is given\nusage: |\nPoint your compass towards an area. Will reset to original spawn if no argument is given\n/compass <area>\nnorth:\ndescription: Point your compass towards true north. Will reset if any argument is given\nusage: |\nPoint your compass towards true north. Will reset if any argument is given\n/north <reset>",
+
+
+  "authors": [
+    {
+     "name": "Julian (insanj) Weiss",
+      "contact": {
+        "email": "me@insanj.com",
+        "homepage": "https://insanj.github.io/pride/",
+        "issues": "https://github.com/insanj/pride/issues",
+        "sources": "https://github.com/insanj/pride/"
+      }
+    }
   ],
-  "requires": {
+
+
+  "license": "MIT",
+  "contact": {
+    "email": "me@insanj.com",
+    "homepage": "https://insanj.github.io/pride/",
+    "issues": "https://github.com/insanj/pride/issues",
+    "sources": "https://github.com/insanj/pride/"
+  },
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.insanj.pride.PrideMod"
+    ]
+  },
+
+  "requires" : {
+    "fabricloader": ">=0.4.0",
+    "fabric": "*"
+  },
+  "depends": {
+    "fabricloader": ">=0.4.0",
     "fabric": "*"
   }
 }
+
