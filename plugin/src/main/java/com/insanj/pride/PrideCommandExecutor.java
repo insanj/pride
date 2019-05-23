@@ -28,7 +28,6 @@ import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 
-import net.minecraft.text.StringTextComponent;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -175,15 +174,14 @@ public class PrideCommandExecutor {
                             page = new ArrayList<TextComponent>();
                         }
 
-                        BlockPos areaLocation = new BlockPos(prideArea.get("x"), prideArea.get("y"), prideArea.get("z"));
-
-                        double totalDiff = PrideCommandExecutor.distanceBetween(areaLocation, playerLocation);
+                        BlockPos areaLocation = PrideBlockPosUtil.posFromPrideArea(prideArea);
+                        double totalDiff = PrideBlockPosUtil.distanceBetween(areaLocation, playerLocation);
                         String diffString = String.format("%.2f", totalDiff);
 
-                        String areaDescription = String.format("x: %d, y: %d, z: %d", (Integer)areaLocation.getX(), (Integer)areaLocation.getY(), (Integer)areaLocation.getZ());
+                        String areaDescription = PrideBlockPosUtil.areaDescription(areaLocation);
 
                         TextComponent hoverComponent = new PrideTextComponentBuilder(areaDescription).build();
-                        TextComponent areaComponent = new PrideTextComponentBuilder(areaName).color(TextFormat.BLUE).bold(true).hover(hoverComponent).build();
+                        TextComponent areaComponent = new PrideTextComponentBuilder(areaName).color(TextFormat.BLUE).bold(true).hover(hoverComponent).click(String.format("/compass %s", areaName)).build();
                         TextComponent distComponent = new PrideTextComponentBuilder(" " + diffString + " blocks away").build();
                         TextComponent pageComponent = areaComponent.append(distComponent);
                         page.add(pageComponent);
@@ -216,13 +214,6 @@ public class PrideCommandExecutor {
         ));
     }
 
-    private static double distanceBetween(BlockPos p1, BlockPos p2) {
-        double xDiff = Math.abs(p1.getX() - p2.getX());
-        double yDiff = Math.abs(p1.getY() - p2.getY());
-        double zDiff = Math.abs(p1.getZ() - p2.getZ());
-        return Math.abs(xDiff + zDiff + yDiff);
-    }
-
     private int nearbyCommandRuntime(CommandContext<ServerCommandSource> context, boolean hasParams) {
         ServerWorld world = context.getSource().getWorld();
         PridePersistentState persis = PridePersistentState.get(world);
@@ -249,8 +240,8 @@ public class PrideCommandExecutor {
                 BlockPos p1 = new BlockPos(e1.getValue().get("x"), e1.getValue().get("y"), e1.getValue().get("z"));
                 BlockPos p2 = new BlockPos(e2.getValue().get("x"), e2.getValue().get("y"), e2.getValue().get("z"));
 
-                double d1 = PrideCommandExecutor.distanceBetween(p1, playerLocation);
-                double d2 = PrideCommandExecutor.distanceBetween(p2, playerLocation);
+                double d1 = PrideBlockPosUtil.distanceBetween(p1, playerLocation);
+                double d2 = PrideBlockPosUtil.distanceBetween(p2, playerLocation);
 
                 return (int)(d1 - d2);
             }
@@ -274,15 +265,14 @@ public class PrideCommandExecutor {
                 page = new ArrayList<TextComponent>();
             }
 
-            BlockPos areaLocation = new BlockPos(prideArea.get("x"), prideArea.get("y"), prideArea.get("z"));
-            double diff = PrideCommandExecutor.distanceBetween(areaLocation, playerLocation);
-
+            BlockPos areaLocation = PrideBlockPosUtil.posFromPrideArea(prideArea);
+            double diff = PrideBlockPosUtil.distanceBetween(areaLocation, playerLocation);
             String diffString = String.format("%.2f", diff);
 
-            String areaDescription = String.format("x: %d, y: %d, z: %d", (Integer)areaLocation.getX(), (Integer)areaLocation.getY(), (Integer)areaLocation.getZ());
+            String areaDescription = PrideBlockPosUtil.areaDescription(areaLocation);
 
             TextComponent hoverComponent = new PrideTextComponentBuilder(areaDescription).build();
-            TextComponent areaComponent = new PrideTextComponentBuilder(areaName).color(TextFormat.BLUE).bold(true).hover(hoverComponent).build();
+            TextComponent areaComponent = new PrideTextComponentBuilder(areaName).color(TextFormat.BLUE).bold(true).hover(hoverComponent).click(String.format("/compass %s", areaName)).build();
             TextComponent distComponent = new PrideTextComponentBuilder(" " + diffString + " blocks away").build();
             TextComponent pageComponent = areaComponent.append(distComponent);
             page.add(pageComponent);
@@ -347,8 +337,12 @@ public class PrideCommandExecutor {
                         PridePersistentState persis = PridePersistentState.get(world);
                         persis.setPrideArea(world, areaName, area);
 
-                        TextComponent message = new PrideTextComponentBuilder("<✿> Settled ").build().append(new PrideTextComponentBuilder(areaName).color(TextFormat.BLUE).build()).append(new PrideTextComponentBuilder("!").build());
-                        context.getSource().getPlayer().addChatMessage(message, false);
+                        String areaDescription = PrideBlockPosUtil.areaDescription(pos);
+
+                        TextComponent message = new PrideTextComponentBuilder("<✿> Settled ").build();
+                        TextComponent areaComponent = new PrideTextComponentBuilder(areaName).color(TextFormat.BLUE).bold(true).hover(new StringTextComponent(areaDescription)).click(String.format("/compass %s", areaName)).build();
+                        TextComponent endComponent = new PrideTextComponentBuilder("!").build();
+                        context.getSource().getPlayer().addChatMessage(message.append(areaComponent).append(endComponent), false);
                         return 1;
                     }))
         ));
@@ -377,23 +371,21 @@ public class PrideCommandExecutor {
             CommandManager.literal("compass")
                 .then(CommandManager.argument("name", StringArgumentType.greedyString())
                 .executes(context -> {
-                    // translate the area name given in the command to the x/y/z coordinates for the pride area
                     ServerWorld world = context.getSource().getWorld();
                     String areaName = StringArgumentType.getString(context, "name");
 
                     PridePersistentState persis = PridePersistentState.get(world);
                     Map<String, Double> area = persis.getPrideArea(world, areaName);
-                    BlockPos pos = new BlockPos((double)area.get("x"), (double)area.get("y"), (double)area.get("z"));
+                    BlockPos pos = PrideBlockPosUtil.posFromPrideArea(area);
 
                     ServerPlayerEntity player = context.getSource().getPlayer();
                     PlayerSpawnPositionS2CPacket packet = new PlayerSpawnPositionS2CPacket(pos);
                     player.networkHandler.sendPacket(packet);
 
-                    String areaDescription = String.format("x: %d, y: %d, z: %d", (Integer)pos.getX(), (Integer)pos.getY(), (Integer)pos.getZ());
-                    
+                    String areaDescription = PrideBlockPosUtil.areaDescription(pos);
                     TextComponent startTextComponent = new PrideTextComponentBuilder("<✿> Compass pointed towards ").color(TextFormat.WHITE).build();
                     TextComponent areaHoverTextComponent = new PrideTextComponentBuilder(areaDescription).build();
-                    TextComponent areaTextComponent = new PrideTextComponentBuilder(areaName).color(TextFormat.GOLD).bold(true).hover(areaHoverTextComponent).build();
+                    TextComponent areaTextComponent = new PrideTextComponentBuilder(areaName).color(TextFormat.GOLD).bold(true).hover(areaHoverTextComponent).click(String.format("/appear %s", areaName)).build();
                     TextComponent endTextComponent = new PrideTextComponentBuilder("!").build();
 
                     TextComponent concatComponent = startTextComponent.append(areaTextComponent).append(endTextComponent);
@@ -402,7 +394,6 @@ public class PrideCommandExecutor {
                 }))
         ));
     }
-
 
     private void registerFarCommand() {
         CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
@@ -419,8 +410,8 @@ public class PrideCommandExecutor {
                     ServerPlayerEntity player = context.getSource().getPlayer();
                     BlockPos playerLocation = player.getBlockPos();
 
-                    String areaDescription = String.format("x: %d, y: %d, z: %d", (Integer)pos.getX(), (Integer)pos.getY(), (Integer)pos.getZ());
-                    TextComponent startTextComponent = new PrideTextComponentBuilder("<✿> " + areaName).color(TextFormat.GOLD).bold(true).hover(new PrideTextComponentBuilder(areaDescription).build()).build();
+                    String areaDescription = PrideBlockPosUtil.areaDescription(pos);
+                    TextComponent startTextComponent = new PrideTextComponentBuilder("<✿> " + areaName).color(TextFormat.GOLD).bold(true).hover(new PrideTextComponentBuilder(areaDescription).click(String.format("/compass %s", areaName)).build()).build();
                     context.getSource().getPlayer().addChatMessage(startTextComponent, false);
 
                     double xDiff = Math.abs(pos.getX() - playerLocation.getX());
@@ -483,7 +474,7 @@ public class PrideCommandExecutor {
                         String areaDescription = PrideBlockPosUtil.areaDescription(areaLocation);
 
                         TextComponent hoverComponent = new PrideTextComponentBuilder(areaDescription).build();
-                        TextComponent areaComponent = new PrideTextComponentBuilder(areaName).color(TextFormat.BLUE).bold(true).hover(hoverComponent).build();
+                        TextComponent areaComponent = new PrideTextComponentBuilder(areaName).color(TextFormat.BLUE).bold(true).hover(hoverComponent).click(String.format("/compass %s", areaName)).build();
                         TextComponent distComponent = new PrideTextComponentBuilder(" " + diffString + " blocks away").build();
                         TextComponent pageComponent = areaComponent.append(distComponent);
                         context.getSource().getPlayer().addChatMessage(pageComponent, false);
@@ -555,7 +546,13 @@ public class PrideCommandExecutor {
                     double yDiff = Math.abs(firstAreaLocation.getY() - secondAreaLocation.getY());
                     double zDiff = Math.abs(firstAreaLocation.getZ() - secondAreaLocation.getZ());
 
-                    TextComponent betweenComponent = new PrideTextComponentBuilder("<✿> Distance between ").build().append(new PrideTextComponentBuilder(firstAreaName).color(TextFormat.BLUE).build()).append(new PrideTextComponentBuilder(" -> ").build()).append(new PrideTextComponentBuilder(secondAreaName).color(TextFormat.BLUE).build());
+                    String firstAreaHoverDesc = PrideBlockPosUtil.areaDescription(firstAreaLocation);
+                    String secondAreaHoverDesc = PrideBlockPosUtil.areaDescription(secondAreaLocation);
+
+                    TextComponent firstAreaComponent = new PrideTextComponentBuilder(firstAreaName).color(TextFormat.BLUE).bold(true).hover(new StringTextComponent(firstAreaHoverDesc)).click(String.format("/compass %s", firstAreaName)).build();
+                    TextComponent inbetweenComponent = new PrideTextComponentBuilder(" -> ").build();
+                    TextComponent secondAreaComponent = new PrideTextComponentBuilder(secondAreaName).color(TextFormat.BLUE).bold(true).hover(new StringTextComponent(secondAreaHoverDesc)).click(String.format("/compass %s", secondAreaName)).build();
+                    TextComponent betweenComponent = new PrideTextComponentBuilder("<✿> Distance between ").build().append(firstAreaComponent).append(inbetweenComponent).append(secondAreaComponent);
                     context.getSource().getPlayer().addChatMessage(betweenComponent, false);
 
                     TextComponent xComponent = new PrideTextComponentBuilder(String.format("x: %.2f", xDiff)).build();
@@ -586,7 +583,10 @@ public class PrideCommandExecutor {
                         ServerPlayerEntity player = context.getSource().getPlayer();
                         player.teleport(world, (double)area.get("x"), (double)area.get("y"), (double)area.get("z"), 0, 0);
 
-                        TextComponent message = new PrideTextComponentBuilder("<✿> Welcome to ").build().append(new PrideTextComponentBuilder(areaName).color(TextFormat.BLUE).build()).append(new PrideTextComponentBuilder("!").build());
+                        BlockPos pos = PrideBlockPosUtil.posFromPrideArea(area);
+                        TextComponent hoverComponent = new StringTextComponent(PrideBlockPosUtil.areaDescription(pos));
+
+                        TextComponent message = new PrideTextComponentBuilder("<✿> Welcome to ").build().append(new PrideTextComponentBuilder(areaName).color(TextFormat.BLUE).bold(true).hover(hoverComponent).click(String.format("/compass %s", areaName)).build()).append(new PrideTextComponentBuilder("!").build());
                         context.getSource().getPlayer().addChatMessage(message, false);
                         return 1;
                     }))

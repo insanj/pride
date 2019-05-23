@@ -61,6 +61,7 @@ import net.minecraft.text.TextComponent;
 import net.minecraft.text.TextFormat;
 import net.minecraft.text.TranslatableTextComponent;
 import net.minecraft.text.event.HoverEvent;
+import net.minecraft.text.event.ClickEvent;
 
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -97,6 +98,12 @@ public class PrideTextComponentBuilder {
     public PrideTextComponentBuilder hover(TextComponent c) {
         HoverEvent event = new HoverEvent(HoverEvent.Action.SHOW_TEXT, c);
         this.underlyingStyle.setHoverEvent(event);
+        return this;
+    }
+
+    public PrideTextComponentBuilder click(String c) {
+        ClickEvent event = new ClickEvent(ClickEvent.Action.RUN_COMMAND, c);
+        this.underlyingStyle.setClickEvent(event);
         return this;
     }
 

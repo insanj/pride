@@ -116,13 +116,12 @@ public class PrideEntityTracker {
         // loop through all areas in world
         for (String areaName : areas.keySet()) {
           Map<String, Double> area = areas.get(areaName);
-          BlockPos areaPos = new BlockPos(area.get("x"), area.get("y"), area.get("z"));
+          BlockPos areaPos = PrideBlockPosUtil.posFromPrideArea(area);
 
           // calculate distance to area
-          double distanceBetween = Math.abs(Math.abs(areaPos.getX() - pos.getX()) + Math.abs(areaPos.getY() - pos.getY()) + Math.abs(areaPos.getZ() - pos.getZ()));
-
+          double distanceBetween = PrideBlockPosUtil.distanceBetween(areaPos, pos);
           if (distanceBetween <= areaDetectionDistance) {
-            String areaDescription = String.format("x: %d, y: %d, z: %d", (Integer)areaPos.getX(), (Integer)areaPos.getY(), (Integer)areaPos.getZ());
+            String areaDescription = PrideBlockPosUtil.areaDescription(areaPos);
 
             // activate!
             if (tracker.currentlyActivatedAreas.get(playerName) == null) {

@@ -59,13 +59,16 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.google.gson.Gson;
 
 public class PrideBlockPosUtil {
-
+  
   public static String areaDescription(BlockPos areaPos) {
       return String.format("x: %d, y: %d, z: %d", (Integer)areaPos.getX(), (Integer)areaPos.getY(), (Integer)areaPos.getZ());
   }
 
   public static double distanceBetween(BlockPos p1, BlockPos p2) {
-    return Math.abs(Math.abs(p1.getX() - p2.getX()) + Math.abs(p1.getY() - p2.getY()) + Math.abs(p1.getZ() - p2.getZ()));
+      double xDiff = Math.abs(p1.getX() - p2.getX());
+      double yDiff = Math.abs(p1.getY() - p2.getY());
+      double zDiff = Math.abs(p1.getZ() - p2.getZ());
+      return Math.abs(xDiff + zDiff + yDiff);
   }
 
   public static boolean isInsideThresholdOfPos(BlockPos pos, double threshold, BlockPos areaPos) {
