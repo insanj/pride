@@ -1,5 +1,5 @@
 <h1 align="center">pride</h1>
-<h3 align="center">🦁  keep track of your playmates in minecraft</h3>
+<h3 align="center">🦁  server-side mod for creating & tracking waypoints (fabric 1.14-1.14.1)</h3>
 
 <p align="center">
   <a href="https://github.com/insanj/pride/releases">
@@ -26,7 +26,7 @@
 
 
   <a href="https://minecraft.net/">
-    <img src="https://img.shields.io/badge/minecraft-1.14%20(19w12b)-yellow.svg" />
+    <img src="https://img.shields.io/badge/minecraft-1.14--1.14.1-yellow.svg" />
   </a>
   
   <a href="https://maven.fabricmc.net/net/fabricmc/fabric">
@@ -34,62 +34,49 @@
   </a>
 
   <a href="https://fabricmc.net/use">
-    <img src="https://img.shields.io/badge/fabric--yarn-19w12b.10-pink.svg" />
+    <img src="https://img.shields.io/badge/fabric--yarn-1.14+build.2-pink.svg" />
   </a>
   
   <a href="https://fabricmc.net/use">
-    <img src="https://img.shields.io/badge/fabric--loader-0.3.7.109-orange.svg" />
+    <img src="https://img.shields.io/badge/fabric--loader-0.4.0+build.121-orange.svg" />
   </a>
 </p>
 
 ---
 
-Pride is a suite of lightweight tools that help everyone on a Minecraft server. Built using the latest Fabric API and targeting the latest Minecraft snapshot, the core mod, `pride.jar`, only need to be installed on the server. Unlike most modpacks and tools, Pride lets you keep track of each other without the use of any dependancies (besides Fabric itself), and should not significantly alter the vanilla experience. Although relatively simple in its design, this plugin aims to be really useful and offer a nice supplement to the built-in navigation features of Minecraft.
-
-<br/>
-
-In addition to `pride.jar`, it is highly recommended that server runners use the Pride webapp, which allows for easy management of all features of Pride, and some added bonuses -- such as adding multiple screenshots to create a blog-like website which can be easily saved and exported to external publishing.
-
-<br/>
-
-Finally, some legacy users of Pride will need to convert from the old YAML formats to the new NBT format. There have been 3 substantially different formats in the history of Pride, each essential for powering the webapp and all `0.4.x` and beyond features. To convert from the old formats to the new formats, use 🐯 [tigon](https://github.com/insanj/tigon) and provide `?yaml` or `?json`  in the URL bar to switch versions.
+<p align="center">
+  <img src="https://media-minecraftforum.cursecdn.com/avatars/0/1/635356669593325566.png"><b>Play on Minecraft 1.14 & 1.14.1</b>
+</p>
 
 ---
 
-## Playing
+Pride is a server-side mod for creating & tracking waypoints. To get started, install [Fabric](https://fabricmc.net/). Then, drop the `pride.jar` from [CurseForge](https://minecraft.curseforge.com/projects/pride) into the `/mods/` folder on your server, or for singleplayer worlds, into your own `.minecraft` folder. Unlike most modpacks and tools, Pride lets you keep track of each other without the use of any dependencies and should not significantly alter the vanilla experience. Although relatively simple in its design, this plugin aims to be really useful and offer a nice supplement to the built-in navigation features of Minecraft.
 
-- `/areas <page_number>`
-- `/settle <name>`
-- `/abandon <name>`
-- `/far <name>`
-- `/here <optional:username>`
-- `/between <name_1>, <name_2>`
-- `/compass <optional:area>`
-- `/north`
 
----
+<h2 align="center">How to Play</h2>
 
-## Webapp
+<pre>
+/pride -- List Pride commands
+/settle <area_name> -- Create a new area
+/abandon <area_name> -- Remove an existing area
+/compass <area_name> -- Point compass towards an area
+/nearby -- List nearby areas
+/nearbypage <page_number> -- List nearby areas by page
+/areas <page_number> -- List areas alphabetically
+/far <area_name> -- Check your distance from an area
+/here -- List the areas at your location
+/between <area_1>,<area_2> -- Distance between 2 areas
+/north -- Point compass north from your position
+/appear <area_name> -- Teleport to area
+/suppress -- Stop getting Pride messages
+</pre>
 
-Pride is most useful when paired with its simple webapp, designed to be ran locally on your computer.
 
-If your server can be accessed with FTP, drop the `host`, `user`, and `password` in a `.env` file in the root `/webapp` directory. 
+<h2 align="center">Authors</h2>
 
-When launched using `npm start` (make sure to run `npm install` beforehand), the webapp will download the `/plugins/pride/config.yml` automatically and use it along with its own local JSON file to power the website.
+(c) 2019 Julian (insanj) Weiss & Anna Raykovska. Made with 💚 in Brooklyn. <a href="http://insanj.com">insanj.com</a>.
 
-![](webapp.png)
-
----
-
-## Authors
-
-```
-Julian Weiss & Anna Raykovska
-me@insanj.com
-github.com/insanj
-```
-
-## License
+<h2 align="center">License</h2>
 
 See [LICENSE](https://github.com/insanj/pride/blob/master/LICENSE). (c) 2019 Julian Weiss.
 

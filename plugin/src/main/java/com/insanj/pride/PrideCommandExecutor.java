@@ -111,13 +111,13 @@ public class PrideCommandExecutor {
                     ServerPlayerEntity player = context.getSource().getPlayer();
 
                     ArrayList<TextComponent> components = new ArrayList<TextComponent>();
-                    TextComponent prettyTitleComponent = new PrideTextComponentBuilder("Thanks for using Pride v0.6.0! Commands:").color(TextFormat.BLUE).bold(true).build();
+                    TextComponent prettyTitleComponent = new PrideTextComponentBuilder("<✿> Thanks for using Pride v0.6.0! Commands:").color(TextFormat.BLUE).bold(true).build();
                     components.add(prettyTitleComponent);
                     components.add(new StringTextComponent("/settle <area_name> -- Create a new area"));
                     components.add(new StringTextComponent("/abandon <area_name> -- Remove an existing area"));
                     components.add(new StringTextComponent("/compass <area_name> -- Point compass towards an area"));
                     components.add(new StringTextComponent("/nearby -- List nearby areas"));
-                    components.add(new StringTextComponent("/nearby page <page_number> -- List nearby areas by page"));
+                    components.add(new StringTextComponent("/nearbypage <page_number> -- List nearby areas by page"));
                     components.add(new StringTextComponent("/areas <page_number> -- List areas alphabetically"));
                     components.add(new StringTextComponent("/far <area_name> -- Check your distance from an area"));
                     components.add(new StringTextComponent("/here -- List the areas at your location"));
@@ -146,7 +146,7 @@ public class PrideCommandExecutor {
                     Map<String, Map<String, Double>> prideAreas = persis.getPrideAreas(world);
 
                     if (prideAreas == null) {
-                        StringTextComponent component = new StringTextComponent("No Pride areas found :(");
+                        StringTextComponent component = new StringTextComponent("<✿> No Pride areas found :(");
                         player.addChatMessage(component, false);
                         return 1;
                     }
@@ -198,12 +198,12 @@ public class PrideCommandExecutor {
                     Integer pageNumber = humanPageNumber - 1;
 
                     if (pageNumber >= pages.size()) {
-                        TextComponent message = new PrideTextComponentBuilder("Page not found. There are only " + pages.size() + " pages available.").color(TextFormat.RED).build();
+                        TextComponent message = new PrideTextComponentBuilder("<✿> Page not found. There are only " + pages.size() + " pages available.").color(TextFormat.RED).build();
                         player.addChatMessage(message, false);
                         return 1;
                     }
                     
-                    TextComponent titleComponent = new PrideTextComponentBuilder("✿  Pride areas page " + humanPageNumber + " of " + pages.size()).build();
+                    TextComponent titleComponent = new PrideTextComponentBuilder("<✿> Pride areas page " + humanPageNumber + " of " + pages.size()).build();
                     player.addChatMessage(titleComponent, false);
 
                     ArrayList<TextComponent> pageToSend = pages.get(pageNumber);
@@ -235,7 +235,7 @@ public class PrideCommandExecutor {
         Map<String, Map<String, Double>> prideAreas = persis.getPrideAreas(world);
 
         if (prideAreas == null) {
-            StringTextComponent component = new StringTextComponent("No Pride areas found :(");
+            StringTextComponent component = new StringTextComponent("<✿> No Pride areas found :(");
             player.addChatMessage(component, false);
             return 1;
         }
@@ -297,12 +297,12 @@ public class PrideCommandExecutor {
         Integer pageNumber = humanPageNumber - 1;
 
         if (pageNumber >= pages.size()) {
-            TextComponent message = new PrideTextComponentBuilder("Page not found. There are only " + pages.size() + " pages available.").color(TextFormat.RED).build();
+            TextComponent message = new PrideTextComponentBuilder("<✿> Page not found. There are only " + pages.size() + " pages available.").color(TextFormat.RED).build();
             player.addChatMessage(message, false);
             return 1;
         }
         
-        TextComponent titleComponent = new PrideTextComponentBuilder("✿  Pride nearby page " + humanPageNumber + " of " + pages.size()).build();
+        TextComponent titleComponent = new PrideTextComponentBuilder("<✿> Pride nearby page " + humanPageNumber + " of " + pages.size()).build();
         player.addChatMessage(titleComponent, false);
 
         ArrayList<TextComponent> pageToSend = pages.get(pageNumber);
@@ -332,7 +332,7 @@ public class PrideCommandExecutor {
 
     private void registerSettleCommand() {
         CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
-                CommandManager.literal("settle")
+                CommandManager.literal("settle").requires(source -> source.hasPermissionLevel(4))
                     .then(CommandManager.argument("name", StringArgumentType.greedyString())
                     .executes(context -> {
                         ServerWorld world = context.getSource().getWorld();
@@ -347,7 +347,7 @@ public class PrideCommandExecutor {
                         PridePersistentState persis = PridePersistentState.get(world);
                         persis.setPrideArea(world, areaName, area);
 
-                        TextComponent message = new PrideTextComponentBuilder("Settled ").build().append(new PrideTextComponentBuilder(areaName).color(TextFormat.BLUE).build()).append(new PrideTextComponentBuilder("!").build());
+                        TextComponent message = new PrideTextComponentBuilder("<✿> Settled ").build().append(new PrideTextComponentBuilder(areaName).color(TextFormat.BLUE).build()).append(new PrideTextComponentBuilder("!").build());
                         context.getSource().getPlayer().addChatMessage(message, false);
                         return 1;
                     }))
@@ -356,7 +356,7 @@ public class PrideCommandExecutor {
 
     private void registerAbandonCommand() {
         CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
-                CommandManager.literal("abandon")
+                CommandManager.literal("abandon").requires(source -> source.hasPermissionLevel(4))
                     .then(CommandManager.argument("name", StringArgumentType.greedyString())
                     .executes(context -> {
                         ServerWorld world = context.getSource().getWorld();
@@ -365,7 +365,7 @@ public class PrideCommandExecutor {
                         PridePersistentState persis = PridePersistentState.get(world);
                         persis.removePrideArea(world, areaName);
 
-                        TextComponent message = new PrideTextComponentBuilder("Abandoned ").build().append(new PrideTextComponentBuilder(areaName).color(TextFormat.BLUE).build()).append(new PrideTextComponentBuilder("!").build());
+                        TextComponent message = new PrideTextComponentBuilder("<✿> Abandoned ").build().append(new PrideTextComponentBuilder(areaName).color(TextFormat.BLUE).build()).append(new PrideTextComponentBuilder("!").build());
                         context.getSource().getPlayer().addChatMessage(message, false);
                         return 1;
                     }))
@@ -391,7 +391,7 @@ public class PrideCommandExecutor {
 
                     String areaDescription = String.format("x: %d, y: %d, z: %d", (Integer)pos.getX(), (Integer)pos.getY(), (Integer)pos.getZ());
                     
-                    TextComponent startTextComponent = new PrideTextComponentBuilder("Compass pointed towards ").color(TextFormat.WHITE).build();
+                    TextComponent startTextComponent = new PrideTextComponentBuilder("<✿> Compass pointed towards ").color(TextFormat.WHITE).build();
                     TextComponent areaHoverTextComponent = new PrideTextComponentBuilder(areaDescription).build();
                     TextComponent areaTextComponent = new PrideTextComponentBuilder(areaName).color(TextFormat.GOLD).bold(true).hover(areaHoverTextComponent).build();
                     TextComponent endTextComponent = new PrideTextComponentBuilder("!").build();
@@ -420,7 +420,7 @@ public class PrideCommandExecutor {
                     BlockPos playerLocation = player.getBlockPos();
 
                     String areaDescription = String.format("x: %d, y: %d, z: %d", (Integer)pos.getX(), (Integer)pos.getY(), (Integer)pos.getZ());
-                    TextComponent startTextComponent = new PrideTextComponentBuilder(areaName).color(TextFormat.GOLD).bold(true).hover(new PrideTextComponentBuilder(areaDescription).build()).build();
+                    TextComponent startTextComponent = new PrideTextComponentBuilder("<✿> " + areaName).color(TextFormat.GOLD).bold(true).hover(new PrideTextComponentBuilder(areaDescription).build()).build();
                     context.getSource().getPlayer().addChatMessage(startTextComponent, false);
 
                     double xDiff = Math.abs(pos.getX() - playerLocation.getX());
@@ -456,7 +456,7 @@ public class PrideCommandExecutor {
                     Map<String, Map<String, Double>> activatedAreas = PrideBlockPosUtil.prideAreasInsidePosThreshold(prideAreas, playerLocation, areaDetectionDistance);
 
                     if (activatedAreas.size() <= 0) {
-                        TextComponent startTextComponent = new PrideTextComponentBuilder("You are not in any Pride areas!").build();
+                        TextComponent startTextComponent = new PrideTextComponentBuilder("<✿> You are not in any Pride areas!").build();
                         context.getSource().getPlayer().addChatMessage(startTextComponent, false);
                         return 1;
                     }
@@ -471,7 +471,7 @@ public class PrideCommandExecutor {
                     
                     Collections.sort(sortedPrideAreaNames, caseInsensitiveComparator);
 
-                    TextComponent startTextComponent = new PrideTextComponentBuilder("You are in the following Pride Areas: ").build();
+                    TextComponent startTextComponent = new PrideTextComponentBuilder("<✿> You are in the following Pride Areas: ").build();
                     context.getSource().getPlayer().addChatMessage(startTextComponent, false);
 
                     for (String areaName: sortedPrideAreaNames) {
@@ -505,7 +505,7 @@ public class PrideCommandExecutor {
                     PlayerSpawnPositionS2CPacket packet = new PlayerSpawnPositionS2CPacket(northPos);
                     player.networkHandler.sendPacket(packet);
                     
-                    TextComponent component = new PrideTextComponentBuilder("Compass pointed north!").build();
+                    TextComponent component = new PrideTextComponentBuilder("<✿> Compass pointed north!").build();
                     context.getSource().getPlayer().addChatMessage(component, false);
                     return 1;
                 }))
@@ -523,7 +523,7 @@ public class PrideCommandExecutor {
                     String argString = StringArgumentType.getString(context, "names");
                     String[] argSplit = argString.split(",");
                     if (argSplit.length != 2) {
-                        TextComponent component = new PrideTextComponentBuilder("☹  Use a comma to separate the two Pride areas").color(TextFormat.RED).build();
+                        TextComponent component = new PrideTextComponentBuilder("<✿> Use a comma to separate the two Pride areas").color(TextFormat.RED).build();
                         context.getSource().getPlayer().addChatMessage(component, false);
                         return 1;
                     }
@@ -533,7 +533,7 @@ public class PrideCommandExecutor {
                     Map<String, Double> firstPrideArea = persis.getPrideArea(world, firstAreaName);
 
                     if (firstPrideArea == null) {
-                        TextComponent component = new PrideTextComponentBuilder("☹  Could not find area: " + firstAreaName).color(TextFormat.RED).build();
+                        TextComponent component = new PrideTextComponentBuilder("<✿> Could not find area: " + firstAreaName).color(TextFormat.RED).build();
                         context.getSource().getPlayer().addChatMessage(component, false);
                         return 1;
                     }
@@ -542,7 +542,7 @@ public class PrideCommandExecutor {
                     Map<String, Double> secondPrideArea = persis.getPrideArea(world, secondAreaName);
 
                     if (secondPrideArea == null) {
-                        TextComponent component = new PrideTextComponentBuilder("☹  Could not find area: " + secondAreaName).color(TextFormat.RED).build();
+                        TextComponent component = new PrideTextComponentBuilder("<✿> Could not find area: " + secondAreaName).color(TextFormat.RED).build();
                         context.getSource().getPlayer().addChatMessage(component, false);
                         return 1;
                     }
@@ -555,7 +555,7 @@ public class PrideCommandExecutor {
                     double yDiff = Math.abs(firstAreaLocation.getY() - secondAreaLocation.getY());
                     double zDiff = Math.abs(firstAreaLocation.getZ() - secondAreaLocation.getZ());
 
-                    TextComponent betweenComponent = new PrideTextComponentBuilder("✄  Distance between ").build().append(new PrideTextComponentBuilder(firstAreaName).color(TextFormat.BLUE).build()).append(new PrideTextComponentBuilder(" -> ").build()).append(new PrideTextComponentBuilder(secondAreaName).color(TextFormat.BLUE).build());
+                    TextComponent betweenComponent = new PrideTextComponentBuilder("<✿> Distance between ").build().append(new PrideTextComponentBuilder(firstAreaName).color(TextFormat.BLUE).build()).append(new PrideTextComponentBuilder(" -> ").build()).append(new PrideTextComponentBuilder(secondAreaName).color(TextFormat.BLUE).build());
                     context.getSource().getPlayer().addChatMessage(betweenComponent, false);
 
                     TextComponent xComponent = new PrideTextComponentBuilder(String.format("x: %.2f", xDiff)).build();
@@ -574,7 +574,7 @@ public class PrideCommandExecutor {
 
     private void registerAppearCommand() {
         CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
-                CommandManager.literal("appear")
+                CommandManager.literal("appear").requires(source -> source.hasPermissionLevel(4))
                     .then(CommandManager.argument("name", StringArgumentType.greedyString())
                     .executes(context -> {
                         ServerWorld world = context.getSource().getWorld();
@@ -586,7 +586,7 @@ public class PrideCommandExecutor {
                         ServerPlayerEntity player = context.getSource().getPlayer();
                         player.teleport(world, (double)area.get("x"), (double)area.get("y"), (double)area.get("z"), 0, 0);
 
-                        TextComponent message = new PrideTextComponentBuilder("Welcome to ").build().append(new PrideTextComponentBuilder(areaName).color(TextFormat.BLUE).build()).append(new PrideTextComponentBuilder("!").build());
+                        TextComponent message = new PrideTextComponentBuilder("<✿> Welcome to ").build().append(new PrideTextComponentBuilder(areaName).color(TextFormat.BLUE).build()).append(new PrideTextComponentBuilder("!").build());
                         context.getSource().getPlayer().addChatMessage(message, false);
                         return 1;
                     }))
@@ -604,10 +604,10 @@ public class PrideCommandExecutor {
 
                         if (config.suppressedUUIDs.contains(playerUUID) == true) {
                             config.suppressedUUIDs.remove(playerUUID);
-                            message = new PrideTextComponentBuilder("Turned Pride messages ").build().append(new PrideTextComponentBuilder("on!").color(TextFormat.GREEN).build());
+                            message = new PrideTextComponentBuilder("<✿> Turned Pride messages ").build().append(new PrideTextComponentBuilder("ON").color(TextFormat.GREEN).build());
                         } else {
                             config.suppressedUUIDs.add(playerUUID);
-                            message = new PrideTextComponentBuilder("Turned Pride messages ").build().append(new PrideTextComponentBuilder("off.").color(TextFormat.RED).build());
+                            message = new PrideTextComponentBuilder("<✿> Turned Pride messages ").build().append(new PrideTextComponentBuilder("OFF").color(TextFormat.RED).build());
                         }
 
                         config.saveConfig(PrideMod.getConfigPath());
