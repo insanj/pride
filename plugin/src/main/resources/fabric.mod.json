@@ -5,7 +5,7 @@
 
   "name": "pride",
   "icon": "assets/pride/icon.png",
-  "description": "✿ server-side mod for creating & tracking waypoints (fabric 1.14-1.14.1)\n/pride -- List Pride commands\n/settle <area_name> -- Create a new area\n/abandon <area_name> -- Remove an existing area\n/compass <area_name> -- Point compass towards an area\n/nearby -- List nearby areas\n/nearbypage <page_number> -- List nearby areas by page\n/areas <page_number> -- List areas alphabetically\n/far <area_name> -- Check your distance from an area\n/here -- List the areas at your location\n/between <area_1>,<area_2> -- Distance between 2 areas\n/north -- Point compass north from your position\n/appear <area_name> -- Teleport to area\n/suppress -- Stop getting Pride messages",
+  "description": "server-side mod for creating & tracking waypoints (fabric 1.14-1.14.1)\n/pride -- List Pride commands\n/settle <area_name> -- Create a new area\n/abandon <area_name> -- Remove an existing area\n/compass <area_name> -- Point compass towards an area\n/nearby -- List nearby areas\n/nearbypage <page_number> -- List nearby areas by page\n/areas <page_number> -- List areas alphabetically\n/far <area_name> -- Check your distance from an area\n/here -- List the areas at your location\n/between <area_1>,<area_2> -- Distance between 2 areas\n/north -- Point compass north from your position\n/appear <area_name> -- Teleport to area\n/suppress -- Stop getting Pride messages",
 
   "authors": [
     {

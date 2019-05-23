@@ -19,6 +19,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.registry.CommandRegistry;
@@ -101,6 +103,7 @@ public class PrideCommandExecutor {
         registerNorthCommand();
         registerAppearCommand();
         registerSuppressCommand();
+        registerBookCommand();
     }
 
     private void registerPrideCommand() {
@@ -376,7 +379,10 @@ public class PrideCommandExecutor {
 
                     PridePersistentState persis = PridePersistentState.get(world);
                     Map<String, Double> area = persis.getPrideArea(world, areaName);
-                    BlockPos pos = PrideBlockPosUtil.posFromPrideArea(area);
+                    BlockPos pos = world.getSpawnPos();
+                    if (area != null) {
+                        pos = PrideBlockPosUtil.posFromPrideArea(area);
+                    } 
 
                     ServerPlayerEntity player = context.getSource().getPlayer();
                     PlayerSpawnPositionS2CPacket packet = new PlayerSpawnPositionS2CPacket(pos);
@@ -385,7 +391,7 @@ public class PrideCommandExecutor {
                     String areaDescription = PrideBlockPosUtil.areaDescription(pos);
                     TextComponent startTextComponent = new PrideTextComponentBuilder("<✿> Compass pointed towards ").color(TextFormat.WHITE).build();
                     TextComponent areaHoverTextComponent = new PrideTextComponentBuilder(areaDescription).build();
-                    TextComponent areaTextComponent = new PrideTextComponentBuilder(areaName).color(TextFormat.GOLD).bold(true).hover(areaHoverTextComponent).click(String.format("/appear %s", areaName)).build();
+                    TextComponent areaTextComponent = new PrideTextComponentBuilder(areaName).color(TextFormat.GOLD).bold(true).hover(areaHoverTextComponent).build();
                     TextComponent endTextComponent = new PrideTextComponentBuilder("!").build();
 
                     TextComponent concatComponent = startTextComponent.append(areaTextComponent).append(endTextComponent);
@@ -519,7 +525,6 @@ public class PrideCommandExecutor {
                         return 1;
                     }
 
-
                     String firstAreaName = argSplit[0].trim();
                     Map<String, Double> firstPrideArea = persis.getPrideArea(world, firstAreaName);
 
@@ -537,7 +542,6 @@ public class PrideCommandExecutor {
                         context.getSource().getPlayer().addChatMessage(component, false);
                         return 1;
                     }
-
 
                     BlockPos firstAreaLocation = PrideBlockPosUtil.posFromPrideArea(firstPrideArea);
                     BlockPos secondAreaLocation = PrideBlockPosUtil.posFromPrideArea(secondPrideArea);
@@ -615,5 +619,66 @@ public class PrideCommandExecutor {
                         return 1;
                     }))
         );
+    }
+
+    private void registerBookCommand() {
+        CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
+                CommandManager.literal("book")
+                    .executes(context -> {
+                        ServerPlayerEntity player = context.getSource().getPlayer();
+                        ServerWorld world = context.getSource().getWorld();
+                        PridePersistentState persis = PridePersistentState.get(world);
+                        Map<String, Map<String, Double>> prideAreas = persis.getPrideAreas(world);
+
+                        if (prideAreas == null) {
+                            StringTextComponent component = new StringTextComponent("<✿> No Pride areas found :(");
+                            player.addChatMessage(component, false);
+                            return 1;
+                        }
+
+                        BlockPos playerLocation = player.getBlockPos();
+                        List<String> sortedPrideAreaNames = new ArrayList<>(prideAreas.keySet());
+
+                        Comparator<String> caseInsensitiveComparator = new Comparator<String>() {
+                            @Override
+                            public int compare(String s1, String s2) {
+                                return s1.toLowerCase().compareTo(s2.toLowerCase());
+                            }
+                        };
+                    
+                        Collections.sort(sortedPrideAreaNames, caseInsensitiveComparator);
+
+                        String currentDateString = new SimpleDateFormat("dd MMM yyyy").format(new Date());
+                        PrideBookBuilder bookBuild = (new PrideBookBuilder()).name("Pride Book").title(world.getSaveHandler().getWorldDir().getName()).author(currentDateString);
+                        ArrayList<String> bookPages = new ArrayList<String>();
+                        int maxCharsPerPage = 246;  // avg 12-13 lines per page
+                        // TODO int maxCharsPerBook = 12300;
+
+                        String page = new String();
+                        for (String areaName: sortedPrideAreaNames) {
+                            Map<String, Double> prideArea = prideAreas.get(areaName);
+
+                            if (page.length() >= maxCharsPerPage) {
+                                bookPages.add(page);
+                                page = new String();
+                            }
+
+                            BlockPos areaLocation = PrideBlockPosUtil.posFromPrideArea(prideArea);
+                            double totalDiff = PrideBlockPosUtil.distanceBetween(areaLocation, playerLocation);
+                            String diffString = String.format("%.2f", totalDiff);
+                            String pageComponent = String.format("%s %s blocks away", areaName, diffString);
+                            page = String.format("%s\n%s", page, pageComponent);
+                        }
+
+                        if (page.length() > 0) {
+                            bookPages.add(page); // pick up any items in last page
+                        }
+
+                        ItemStack prideBookStack = bookBuild.setPages(bookPages).build();
+                        player.inventory.insertStack(prideBookStack);
+                        player.inventory.markDirty();
+                        return 1;
+                    })
+        ));
     }
 }

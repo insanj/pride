@@ -95,7 +95,9 @@ public class PrideBookBuilder {
   public PrideBookBuilder setPages(List<String> pages) {
       ListTag pagesList = new ListTag();
       for (int i = 0; i < pages.size(); i++) {
-        pagesList.set(i, new StringTag(pages.get(i)));
+        String pageText = pages.get(i);
+        String jsonPageText = String.format("{\"text\":\"%s\"}", pageText);
+        pagesList.set(i, new StringTag(jsonPageText));
       }
 
       this.underlyingBookMeta.put("pages", pagesList);
