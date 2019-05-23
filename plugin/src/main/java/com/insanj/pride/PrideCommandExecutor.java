@@ -79,6 +79,9 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.google.gson.Gson;
 import com.google.common.collect.Multimap;
 
+import com.insanj.pride.util.*;
+import com.insanj.pride.save.*;
+
 public class PrideCommandExecutor {
     private final PrideConfig config;
     public PrideCommandExecutor(PrideConfig config) {
@@ -96,6 +99,7 @@ public class PrideCommandExecutor {
         registerHereCommand();
         registerBetweenCommand();
         registerNorthCommand();
+        registerAppearCommand();
     }
 
     private void registerPrideCommand() {
@@ -562,4 +566,26 @@ public class PrideCommandExecutor {
                 }))
         ));
     }
+
+    private void registerAppearCommand() {
+        CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
+                CommandManager.literal("appear")
+                    .then(CommandManager.argument("name", StringArgumentType.greedyString())
+                    .executes(context -> {
+                        ServerWorld world = context.getSource().getWorld();
+                        String areaName = StringArgumentType.getString(context, "name");
+
+                        PridePersistentState persis = PridePersistentState.get(world);
+                        Map<String, Double> area = persis.getPrideArea(world, areaName);
+
+                        ServerPlayerEntity player = context.getSource().getPlayer();
+                        player.teleport(world, (double)area.get("x"), (double)area.get("y"), (double)area.get("z"), 0, 0);
+
+                        TextComponent message = new PrideTextComponentBuilder("Welcome to ").build().append(new PrideTextComponentBuilder(areaName).color(TextFormat.BLUE).build()).append(new PrideTextComponentBuilder("!").build());
+                        context.getSource().getPlayer().addChatMessage(message, false);
+                        return 1;
+                    }))
+        ));
+    }
+
 }

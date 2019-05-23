@@ -58,6 +58,9 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 
 import com.google.gson.Gson;
 
+import com.insanj.pride.util.*;
+import com.insanj.pride.save.*;
+
 public class PrideEntityTracker {
   // currently unused config which will be used to configure detection distance, etc
   private final PrideConfig config;

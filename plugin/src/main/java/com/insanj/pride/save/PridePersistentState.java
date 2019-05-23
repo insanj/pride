@@ -1,4 +1,4 @@
-package com.insanj.pride;
+package com.insanj.pride.save;
 
 import net.fabricmc.fabric.api.util.NbtType;
 

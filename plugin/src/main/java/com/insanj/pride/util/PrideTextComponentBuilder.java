@@ -1,4 +1,4 @@
-package com.insanj.pride;
+package com.insanj.pride.util;
 
 import java.io.File;
 import java.io.FileOutputStream;
