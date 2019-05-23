@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.UUID;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.registry.CommandRegistry;
@@ -83,9 +84,9 @@ import com.insanj.pride.util.*;
 import com.insanj.pride.save.*;
 
 public class PrideCommandExecutor {
-    private final PrideConfig config;
-    public PrideCommandExecutor(PrideConfig config) {
-        this.config = config;
+    private final PrideMod plugin;
+    public PrideCommandExecutor(PrideMod plugin) {
+        this.plugin = plugin;
     }
 
     public void register() {
@@ -100,6 +101,7 @@ public class PrideCommandExecutor {
         registerBetweenCommand();
         registerNorthCommand();
         registerAppearCommand();
+        registerSuppressCommand();
     }
 
     private void registerPrideCommand() {
@@ -109,17 +111,20 @@ public class PrideCommandExecutor {
                     ServerPlayerEntity player = context.getSource().getPlayer();
 
                     ArrayList<TextComponent> components = new ArrayList<TextComponent>();
-                    components.add(new StringTextComponent("Thanks for using Pride v0.5.5! Commands:"));
+                    TextComponent prettyTitleComponent = new PrideTextComponentBuilder("Thanks for using Pride v0.6.0! Commands:").color(TextFormat.BLUE).bold(true).build();
+                    components.add(prettyTitleComponent);
+                    components.add(new StringTextComponent("/settle <area_name> -- Create a new area"));
+                    components.add(new StringTextComponent("/abandon <area_name> -- Remove an existing area"));
                     components.add(new StringTextComponent("/compass <area_name> -- Point compass towards an area"));
                     components.add(new StringTextComponent("/nearby -- List nearby areas"));
                     components.add(new StringTextComponent("/nearby page <page_number> -- List nearby areas by page"));
                     components.add(new StringTextComponent("/areas <page_number> -- List areas alphabetically"));
-                    components.add(new StringTextComponent("/settle <area_name> -- Create a new area"));
-                    components.add(new StringTextComponent("/abandon <area_name> -- Remove an existing area"));
                     components.add(new StringTextComponent("/far <area_name> -- Check your distance from an area"));
                     components.add(new StringTextComponent("/here -- List the areas at your location"));
                     components.add(new StringTextComponent("/between <area_1>,<area_2> -- Distance between 2 areas"));
                     components.add(new StringTextComponent("/north -- Point compass north from your position"));
+                    components.add(new StringTextComponent("/appear <area_name> -- Teleport to area"));
+                    components.add(new StringTextComponent("/suppress -- Stop getting Pride messages"));
 
                     for (TextComponent c : components) {
                         player.addChatMessage(c, false);
@@ -447,7 +452,7 @@ public class PrideCommandExecutor {
                     PridePersistentState persis = PridePersistentState.get(world);
                     Map<String, Map<String, Double>> prideAreas = persis.getPrideAreas(world);
 
-                    double areaDetectionDistance = config.activationDistance;
+                    double areaDetectionDistance = plugin.config.activationDistance;
                     Map<String, Map<String, Double>> activatedAreas = PrideBlockPosUtil.prideAreasInsidePosThreshold(prideAreas, playerLocation, areaDetectionDistance);
 
                     if (activatedAreas.size() <= 0) {
@@ -588,4 +593,27 @@ public class PrideCommandExecutor {
         ));
     }
 
+    private void registerSuppressCommand() {
+        PrideConfig config = plugin.config;
+        CommandRegistry.INSTANCE.register(false, serverCommandSourceCommandDispatcher -> serverCommandSourceCommandDispatcher.register(
+                CommandManager.literal("suppress")
+                    .executes(context -> {
+                        ServerPlayerEntity player = context.getSource().getPlayer();
+                        UUID playerUUID = player.getUuid();
+                        TextComponent message = null;
+
+                        if (config.suppressedUUIDs.contains(playerUUID) == true) {
+                            config.suppressedUUIDs.remove(playerUUID);
+                            message = new PrideTextComponentBuilder("Turned Pride messages ").build().append(new PrideTextComponentBuilder("on!").color(TextFormat.GREEN).build());
+                        } else {
+                            config.suppressedUUIDs.add(playerUUID);
+                            message = new PrideTextComponentBuilder("Turned Pride messages ").build().append(new PrideTextComponentBuilder("off.").color(TextFormat.RED).build());
+                        }
+
+                        config.saveConfig(PrideMod.getConfigPath());
+                        player.addChatMessage(message, false);
+                        return 1;
+                    }))
+        );
+    }
 }

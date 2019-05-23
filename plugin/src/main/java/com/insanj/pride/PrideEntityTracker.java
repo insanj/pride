@@ -62,25 +62,22 @@ import com.insanj.pride.util.*;
 import com.insanj.pride.save.*;
 
 public class PrideEntityTracker {
-  // currently unused config which will be used to configure detection distance, etc
-  private final PrideConfig config;
+  private final PrideMod plugin;
 
   // arbitrary bottleneck to prevent running the tracker every single tick (more than once per second!)
-  private final int superLazyBottleneckLimit;
   private int superLazyBottleneck = 0;
 
   // when a player is in a pride area, it will be added to the ArrayList keyed by their name
   private Map<String, ArrayList<String>> currentlyActivatedAreas = new HashMap();
 
-  public PrideEntityTracker(PrideConfig config) {
-    this.config = config;
-    this.superLazyBottleneckLimit = config.bottleneckLimit;
+  public PrideEntityTracker(PrideMod plugin) {
+    this.plugin = plugin;
   }
 
   public void register() {
     ServerTickCallback.EVENT.register((MinecraftServer server) -> {
       // only allow method to run once every 50 ticks
-      if (++superLazyBottleneck < superLazyBottleneckLimit) {
+      if (++superLazyBottleneck < plugin.config.bottleneckLimit) {
         return;
       }
 
@@ -101,7 +98,7 @@ public class PrideEntityTracker {
   // async/thread-based function to run calculations for pride areas off main
   public void calculateActivatedPrideAreasForPlayer(MinecraftServer server, ServerWorld world, ServerPlayerEntity player) {
     PrideEntityTracker tracker = this;
-    double areaDetectionDistance = config.activationDistance;
+    double areaDetectionDistance = plugin.config.activationDistance;
 
     new Thread(new Runnable() { 
       public void run() { 
@@ -115,9 +112,6 @@ public class PrideEntityTracker {
         if (areas == null || areas.size() <= 0) {
           return; // no areas in this world
         }
-
-        // System.out.println(String.format("looping through %s in %s seeing if %s is in range of something", areas.toString(), world.toString(), pos.toString()));
-
 
         // loop through all areas in world
         for (String areaName : areas.keySet()) {
@@ -171,7 +165,6 @@ public class PrideEntityTracker {
       }
 
       private void sendServerMessage(MinecraftServer server, ServerPlayerEntity player, String areaName, String areaDescription) {
-
         String playerName = player.getName().getString();
         BlockPos playerPos = player.getBlockPos();
           
@@ -194,8 +187,11 @@ public class PrideEntityTracker {
         TextComponent concatComponent = playerComponent.append(fillerComponent).append(areaComponent).append(punctuationComponent);
 
         Set<ServerPlayerEntity> players = (Set<ServerPlayerEntity>)PlayerStream.all(server).collect(Collectors.toSet());
+
         for (ServerPlayerEntity onlinePlayer : players) {
-          onlinePlayer.addChatMessage(concatComponent, false);
+          if (plugin.config.suppressedUUIDs.contains(onlinePlayer.getUuid()) == false) {
+            onlinePlayer.addChatMessage(concatComponent, false);
+          }
         }
       }
     }).start();

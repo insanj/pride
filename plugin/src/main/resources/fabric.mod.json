@@ -5,7 +5,7 @@
 
   "name": "pride",
   "icon": "assets/pride/icon.png",
-  "description": "keep track of your playmates in minecraft\n/settle <name>\n/abandon <name>\n/here\n/far <name>\n/areas <page_number>\n/nearby\n/nearbypage <page_number>\n/between <name_one>,<name_two>\n/compass <area>\n/north\n/appear",
+  "description": "keep track of your playmates in minecraft\n/settle <name>\n/abandon <name>\n/here\n/far <name>\n/areas <page_number>\n/nearby\n/nearbypage <page_number>\n/between <name_one>,<name_two>\n/compass <area>\n/north\n/appear <area_name>\n/suppress",
 
   "authors": [
     {

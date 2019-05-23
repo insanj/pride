@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.UUID;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -46,6 +49,7 @@ public class PrideConfig {
     // how many blocks away in all x/y/z directions required to activate pride area
     public double activationDistance = 50.0;
     public int bottleneckLimit = 100;
+    public List<UUID> suppressedUUIDs = new ArrayList<UUID>();
 
     public void saveConfig(String configPath) {
         File configFile = new File(configPath);

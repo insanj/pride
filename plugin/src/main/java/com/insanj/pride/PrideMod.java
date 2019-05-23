@@ -28,16 +28,13 @@ import com.insanj.pride.save.*;
 public class PrideMod implements ModInitializer {
     public static final String MOD_ID = "pride";
 
-    private String configPath;
-    private PrideConfig config;
+    public PrideConfig config;
     private PrideCommandExecutor executor;
     private PrideEntityTracker tracker;
 
     @Override
     public void onInitialize() {
-        configPath = FabricLoader.getInstance().getConfigDirectory() + "/" + MOD_ID + ".json";
-
-        File configFile = new File(configPath);
+        File configFile = new File(PrideMod.getConfigPath());
         if (!configFile.exists()) {
             config = PrideConfig.writeConfigToFile(configFile);
         }
@@ -45,10 +42,14 @@ public class PrideMod implements ModInitializer {
             config = PrideConfig.configFromFile(configFile);
         }
 
-        executor = new PrideCommandExecutor(config);
+        executor = new PrideCommandExecutor(this);
         executor.register();
 
-        tracker = new PrideEntityTracker(config);
+        tracker = new PrideEntityTracker(this);
         tracker.register();
+    }
+
+    public static String getConfigPath() {
+        return FabricLoader.getInstance().getConfigDirectory() + "/" + MOD_ID + ".json";
     }
 }
