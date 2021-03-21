@@ -2,7 +2,7 @@ SHELL:=/bin/bash
 SOURCE_PATH=plugin
 BUILD_PATH=build
 SERVER_PATH=server
-BUKKIT_JAR_FILENAME=spigot.jar
+BUKKIT_JAR_FILENAME=spigot-1.16.5.jar
 GIT_TAG:=$(shell git describe --tags)
 OUTPUT_NAME=pride-$(GIT_TAG)
 
@@ -22,14 +22,14 @@ plugin:
 	cp -r $(SOURCE_PATH)/*.yml $(BUILD_PATH)/bin/
 	# step 4 create JAR file using the "build in progress" folder
 	jar -cvf $(BUILD_PATH)/$(OUTPUT_NAME).jar -C $(BUILD_PATH)/bin .
-	# step 5 remove any existing plugin on the server in the server folder
-	-rm -r -f $(SERVER_PATH)/plugins/$(OUTPUT_NAME).jar
-	# step 6 copy the JAR file into the server to run it!
-	rm -r -f $(SERVER_PATH)/plugins/pride*.jar
-	cp -r $(BUILD_PATH)/$(OUTPUT_NAME).jar $(SERVER_PATH)/plugins/$(OUTPUT_NAME).jar
 
 .PHONY: server
 server:
+	# step 5 remove any existing plugin on the server in the server folder
+	-rm -r -f $(SERVER_PATH)/plugins/$(OUTPUT_NAME).jar
+	# step 6 copy the JAR file into the server to run it!
+	-rm -r -f $(SERVER_PATH)/plugins/pride*.jar
+	-cp -r $(BUILD_PATH)/$(OUTPUT_NAME).jar $(SERVER_PATH)/plugins/$(OUTPUT_NAME).jar
 	# step 7 run the server!
 	cd $(SERVER_PATH) && java -Xms1G -Xmx1G -jar -DIReallyKnowWhatIAmDoingISwear $(BUKKIT_JAR_FILENAME)
 
